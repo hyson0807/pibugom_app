@@ -23,11 +23,12 @@ import {
   useDeleteAnswer,
   useToggleBookmark,
 } from "@/hooks/useQuestions";
-import { useBlockUser } from "@/hooks/useUser";
+import { useBlockUser, useReportContent } from "@/hooks/useUser";
 import { useAuthStore } from "@/stores/useAuthStore";
 import QuestionActionSheet from "@/components/QuestionActionSheet";
 import AnswerActionSheet from "@/components/AnswerActionSheet";
 import BlockActionSheet from "@/components/BlockActionSheet";
+import ReportReasonSheet from "@/components/ReportReasonSheet";
 import { showToast } from "@/utils/toast";
 import { timeAgo } from "@/utils/dateUtils";
 import { Colors } from "@/constants/colors";
@@ -177,7 +178,10 @@ export default function QuestionDetailScreen() {
   const [blockTarget, setBlockTarget] = useState<{
     userId: string;
     nickname: string;
+    targetType: "question" | "answer";
+    targetId: string;
   } | null>(null);
+  const [reportVisible, setReportVisible] = useState(false);
 
   const { data: question, isLoading, isError } = useQuestion(id);
   const createAnswer = useCreateAnswer();
@@ -185,6 +189,7 @@ export default function QuestionDetailScreen() {
   const deleteAnswer = useDeleteAnswer();
   const toggleBookmark = useToggleBookmark();
   const blockUser = useBlockUser();
+  const reportContent = useReportContent();
 
   const isMyQuestion = question?.userId === user?.id;
 
@@ -239,6 +244,8 @@ export default function QuestionDetailScreen() {
         setBlockTarget({
           userId: item.userId,
           nickname: item.user.nickname ?? "익명",
+          targetType: "answer",
+          targetId: item.id,
         });
       }
     },
@@ -292,6 +299,41 @@ export default function QuestionDetailScreen() {
       ]
     );
   }, [blockTarget, blockUser]);
+
+  const handleReport = useCallback(() => {
+    if (!blockTarget) return;
+    setReportVisible(true);
+  }, [blockTarget]);
+
+  const handleReportSubmit = useCallback(
+    (reason: string, detail?: string) => {
+      if (!blockTarget) return;
+      reportContent.mutate(
+        {
+          targetType: blockTarget.targetType,
+          targetId: blockTarget.targetId,
+          reason,
+          detail,
+        },
+        {
+          onSuccess: () => {
+            showToast("success", "신고가 접수되었습니다.");
+            setReportVisible(false);
+            setBlockTarget(null);
+          },
+          onError: (error: any) => {
+            if (error?.response?.status === 409) {
+              showToast("error", "이미 신고한 콘텐츠입니다.");
+            } else {
+              showToast("error", "신고에 실패했습니다.");
+            }
+            setReportVisible(false);
+          },
+        }
+      );
+    },
+    [blockTarget, reportContent]
+  );
 
   const handleDeleteAnswer = useCallback(() => {
     if (!answerSheetTarget) return;
@@ -422,6 +464,8 @@ export default function QuestionDetailScreen() {
                     setBlockTarget({
                       userId: question.userId,
                       nickname: question.user?.nickname ?? "익명",
+                      targetType: "question",
+                      targetId: question.id,
                     })
                   }
                   hitSlop={8}
@@ -553,9 +597,19 @@ export default function QuestionDetailScreen() {
       />
 
       <BlockActionSheet
-        visible={!!blockTarget}
+        visible={!!blockTarget && !reportVisible}
         onClose={() => setBlockTarget(null)}
+        onReport={handleReport}
         onBlock={handleBlock}
+      />
+
+      <ReportReasonSheet
+        visible={reportVisible}
+        onClose={() => {
+          setReportVisible(false);
+          setBlockTarget(null);
+        }}
+        onSubmit={handleReportSubmit}
       />
     </KeyboardAvoidingView>
   );

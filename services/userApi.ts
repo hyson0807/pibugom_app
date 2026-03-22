@@ -22,4 +22,11 @@ export const userApi = {
         { id: string; nickname: string | null; profileImage: string | null; blockedAt: string }[]
       >("/users/blocked")
       .then((r) => r.data),
+
+  reportContent: (data: {
+    targetType: "question" | "answer";
+    targetId: string;
+    reason: string;
+    detail?: string;
+  }) => api.post<{ reported: boolean }>("/reports", data).then((r) => r.data),
 };
