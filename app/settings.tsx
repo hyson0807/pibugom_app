@@ -47,7 +47,7 @@ export default function SettingsScreen() {
   const handleDeleteAccount = () => {
     Alert.alert(
       "회원탈퇴",
-      "탈퇴하면 모든 데이터가 삭제되며 복구할 수 없어요.\n정말 탈퇴하시겠어요?",
+      "탈퇴하면 개인정보가 삭제되며 복구할 수 없어요.\n작성한 글과 댓글은 익명으로 유지돼요.\n정말 탈퇴하시겠어요?",
       [
         { text: "취소", style: "cancel" },
         {

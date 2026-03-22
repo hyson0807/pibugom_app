@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { Platform } from "react-native";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -7,42 +7,53 @@ let Updates: any = null;
 if (!__DEV__ && Platform.OS !== "web") {
   try {
     Updates = require("expo-updates");
-  } catch {
-    // expo-updates not available
-  }
+  } catch {}
 }
+
+const UPDATE_TIMEOUT_MS = 10_000;
 
 export function useAppUpdates() {
   const [isUpdating, setIsUpdating] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-
-  const checkAndApplyUpdate = useCallback(async () => {
-    if (!Updates) return;
-
-    try {
-      setIsUpdating(true);
-
-      const checkResult = await Updates.checkForUpdateAsync();
-
-      if (checkResult.isAvailable) {
-        const fetchResult = await Updates.fetchUpdateAsync();
-
-        if (fetchResult.isNew) {
-          await Updates.reloadAsync();
-        }
-      }
-
-      setIsUpdating(false);
-    } catch (e) {
-      console.error("[Updates] Error:", e);
-      setIsUpdating(false);
-      setError(e as Error);
-    }
-  }, []);
 
   useEffect(() => {
-    checkAndApplyUpdate();
-  }, [checkAndApplyUpdate]);
+    if (!Updates) return;
 
-  return { isUpdating, error, checkAndApplyUpdate };
+    let cancelled = false;
+    let timerId: ReturnType<typeof setTimeout>;
+
+    const run = async () => {
+      setIsUpdating(true);
+
+      try {
+        const timeout = new Promise<never>((_, reject) => {
+          timerId = setTimeout(() => reject(new Error("Update timeout")), UPDATE_TIMEOUT_MS);
+        });
+
+        const checkResult = await Promise.race([Updates.checkForUpdateAsync(), timeout]);
+
+        if (checkResult.isAvailable) {
+          const fetchResult = await Promise.race([Updates.fetchUpdateAsync(), timeout]);
+
+          if (fetchResult.isNew) {
+            await Updates.reloadAsync();
+            return;
+          }
+        }
+      } catch (e) {
+        console.error("[Updates] Error:", e);
+      } finally {
+        clearTimeout(timerId);
+        if (!cancelled) setIsUpdating(false);
+      }
+    };
+
+    run();
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timerId);
+    };
+  }, []);
+
+  return { isUpdating };
 }
