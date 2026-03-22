@@ -237,7 +237,7 @@ export default function MyQuestionsScreen() {
   }, [isError, activeTab, refetch]);
 
   return (
-    <SafeAreaView className="flex-1 bg-skin-bg">
+    <SafeAreaView className="flex-1 bg-skin-bg" edges={["top"]}>
       <View className="px-5 pt-4 mb-2 flex-row items-center justify-end gap-4">
         <TouchableOpacity
           onPress={() => router.push("/notifications")}

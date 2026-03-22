@@ -2,6 +2,7 @@ import { useState } from "react";
 import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "@/constants/colors";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import QuestionBottomSheet from "./QuestionBottomSheet";
@@ -17,12 +18,13 @@ export default function CustomTabBar({
   navigation,
 }: BottomTabBarProps) {
   const [sheetVisible, setSheetVisible] = useState(false);
+  const insets = useSafeAreaInsets();
 
   // Only show routes with tab config
   const visibleRoutes = state.routes.filter((r) => TAB_CONFIG[r.name]);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingBottom: insets.bottom }]}>
       {/* Left tab */}
       {visibleRoutes[0] && (
         <TabButton
@@ -112,7 +114,6 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     backgroundColor: Colors.skinTab,
-    paddingBottom: 20,
     paddingTop: 8,
     borderTopWidth: 0.5,
     borderTopColor: Colors.skinBorder,

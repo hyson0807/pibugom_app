@@ -73,7 +73,7 @@ export default function HelpScreen() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-skin-bg">
+    <SafeAreaView className="flex-1 bg-skin-bg" edges={["top"]}>
       <View className="px-5 pt-4">
         <View className="flex-row items-center justify-between mb-4">
           <Text
