@@ -17,6 +17,22 @@ import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "../stores/useAuthStore";
 import { userApi } from "../services/userApi";
 import { Colors } from "../constants/colors";
+import { SKIN_CATEGORIES } from "../constants/skinCategories";
+import WheelPicker, { ITEM_HEIGHT, VISIBLE_ITEMS } from "../components/WheelPicker";
+
+const GENDERS = [
+  { value: "MALE", label: "남성", icon: "male" as const },
+  { value: "FEMALE", label: "여성", icon: "female" as const },
+  { value: "OTHER", label: "기타", icon: "person" as const },
+];
+
+const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
+const currentYear = new Date().getFullYear();
+const YEARS = Array.from({ length: currentYear - 1949 }, (_, i) => 1950 + i);
+const MONTH_NAMES = [
+  "1월", "2월", "3월", "4월", "5월", "6월",
+  "7월", "8월", "9월", "10월", "11월", "12월",
+];
 
 export default function EditProfileScreen() {
   const router = useRouter();
@@ -24,6 +40,12 @@ export default function EditProfileScreen() {
   const setUser = useAuthStore((s) => s.setUser);
 
   const [nickname, setNickname] = useState(user?.nickname ?? "");
+  const [gender, setGender] = useState(user?.gender ?? "");
+  const [birthMonth, setBirthMonth] = useState(user?.birthMonth ?? 1);
+  const [birthYear, setBirthYear] = useState(user?.birthYear ?? 2000);
+  const [skinConcerns, setSkinConcerns] = useState<string[]>(
+    user?.skinConcerns ?? []
+  );
   const [newImage, setNewImage] = useState<{
     uri: string;
     type: string;
@@ -32,6 +54,14 @@ export default function EditProfileScreen() {
   const [isSaving, setIsSaving] = useState(false);
 
   const displayImage = newImage?.uri ?? user?.profileImage;
+
+  const toggleConcern = (concern: string) => {
+    setSkinConcerns((prev) =>
+      prev.includes(concern)
+        ? prev.filter((c) => c !== concern)
+        : [...prev, concern]
+    );
+  };
 
   const handlePickImage = async () => {
     const { pickAndCompressImage } = await import("../utils/imageUpload");
@@ -45,9 +75,27 @@ export default function EditProfileScreen() {
     const trimmed = nickname.trim();
     const nicknameChanged = trimmed !== (user?.nickname ?? "");
     const imageChanged = !!newImage;
+    const genderChanged = gender !== (user?.gender ?? "");
+    const birthMonthChanged = birthMonth !== (user?.birthMonth ?? 1);
+    const birthYearChanged = birthYear !== (user?.birthYear ?? 2000);
+    const skinConcernsChanged =
+      JSON.stringify(skinConcerns) !== JSON.stringify(user?.skinConcerns ?? []);
 
-    if (!nicknameChanged && !imageChanged) {
+    const hasChanges =
+      nicknameChanged ||
+      imageChanged ||
+      genderChanged ||
+      birthMonthChanged ||
+      birthYearChanged ||
+      skinConcernsChanged;
+
+    if (!hasChanges) {
       router.back();
+      return;
+    }
+
+    if (skinConcerns.length === 0) {
+      Alert.alert("알림", "피부 고민을 최소 1개 이상 선택해주세요.");
       return;
     }
 
@@ -56,6 +104,18 @@ export default function EditProfileScreen() {
       const formData = new FormData();
       if (nicknameChanged && trimmed) {
         formData.append("nickname", trimmed);
+      }
+      if (genderChanged && gender) {
+        formData.append("gender", gender);
+      }
+      if (birthMonthChanged) {
+        formData.append("birthMonth", String(birthMonth));
+      }
+      if (birthYearChanged) {
+        formData.append("birthYear", String(birthYear));
+      }
+      if (skinConcernsChanged) {
+        formData.append("skinConcerns", JSON.stringify(skinConcerns));
       }
       if (newImage) {
         formData.append("profileImage", {
@@ -74,6 +134,10 @@ export default function EditProfileScreen() {
     }
   };
 
+  const monthIndex = birthMonth - 1;
+  const yearIndex = YEARS.indexOf(birthYear);
+  const age = currentYear - birthYear;
+
   return (
     <SafeAreaView className="flex-1 bg-skin-bg" edges={["bottom"]}>
       <KeyboardAvoidingView
@@ -81,7 +145,7 @@ export default function EditProfileScreen() {
         className="flex-1"
       >
         <ScrollView
-          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 24 }}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 24, paddingBottom: 40 }}
           keyboardShouldPersistTaps="handled"
         >
           {/* Profile image */}
@@ -129,6 +193,102 @@ export default function EditProfileScreen() {
             <Text className="text-xs text-skin-text-secondary mt-1 text-right">
               {nickname.length}/20
             </Text>
+          </View>
+
+          {/* Gender selection */}
+          <View className="mb-6">
+            <Text className="text-sm font-medium text-skin-text mb-2">
+              성별
+            </Text>
+            <View className="flex-row gap-3">
+              {GENDERS.map((g) => {
+                const isSelected = gender === g.value;
+                return (
+                  <TouchableOpacity
+                    key={g.value}
+                    className={`flex-1 rounded-xl py-3 flex-row items-center justify-center ${
+                      isSelected
+                        ? "bg-skin-primary"
+                        : "bg-skin-surface border border-skin-border"
+                    }`}
+                    onPress={() => setGender(g.value)}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons
+                      name={g.icon}
+                      size={18}
+                      color={isSelected ? "white" : Colors.skinTextSecondary}
+                    />
+                    <Text
+                      className={`text-sm font-medium ml-1.5 ${
+                        isSelected ? "text-white" : "text-skin-text-secondary"
+                      }`}
+                    >
+                      {g.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+
+          {/* Birth year/month picker */}
+          <View className="mb-6">
+            <Text className="text-sm font-medium text-skin-text mb-2">
+              생년월
+            </Text>
+            <View
+              className="flex-row mx-2"
+              style={{ height: ITEM_HEIGHT * VISIBLE_ITEMS }}
+            >
+              <WheelPicker
+                data={MONTHS}
+                labels={MONTH_NAMES}
+                selectedIndex={monthIndex}
+                onSelect={(m) => setBirthMonth(m)}
+              />
+              <View className="w-4" />
+              <WheelPicker
+                data={YEARS}
+                selectedIndex={yearIndex}
+                onSelect={(y) => setBirthYear(y)}
+              />
+            </View>
+            <Text className="text-center text-skin-text text-base font-semibold mt-2">
+              {age}세
+            </Text>
+          </View>
+
+          {/* Skin concerns */}
+          <View className="mb-8">
+            <Text className="text-sm font-medium text-skin-text mb-2">
+              피부 고민
+            </Text>
+            <View className="flex-row flex-wrap gap-2">
+              {SKIN_CATEGORIES.map((concern) => {
+                const isSelected = skinConcerns.includes(concern);
+                return (
+                  <TouchableOpacity
+                    key={concern}
+                    className={`rounded-full px-4 py-2 ${
+                      isSelected
+                        ? "bg-skin-primary"
+                        : "bg-skin-surface border border-skin-border"
+                    }`}
+                    onPress={() => toggleConcern(concern)}
+                    activeOpacity={0.7}
+                  >
+                    <Text
+                      className={`text-sm font-medium ${
+                        isSelected ? "text-white" : "text-skin-text-secondary"
+                      }`}
+                    >
+                      {concern}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           </View>
 
           {/* Save button */}

@@ -114,16 +114,6 @@ export default function MyQuestionsScreen() {
           </View>
         </View>
 
-        <TouchableOpacity
-          className="border border-skin-border rounded-xl py-2.5 items-center mb-4"
-          onPress={() => router.push("/edit-profile")}
-          activeOpacity={0.7}
-        >
-          <Text className="text-sm font-medium text-skin-text">
-            프로필 수정
-          </Text>
-        </TouchableOpacity>
-
         {user?.skinConcerns && user.skinConcerns.length > 0 && (
           <View className="flex-row flex-wrap gap-2 mb-4">
             {user.skinConcerns.map((concern) => (
@@ -138,6 +128,16 @@ export default function MyQuestionsScreen() {
             ))}
           </View>
         )}
+
+        <TouchableOpacity
+          className="border border-skin-border rounded-xl py-2.5 items-center mb-4"
+          onPress={() => router.push("/edit-profile")}
+          activeOpacity={0.7}
+        >
+          <Text className="text-sm font-medium text-skin-text">
+            프로필 수정
+          </Text>
+        </TouchableOpacity>
 
         <View className="border-t border-skin-border pt-4">
           <Text className="text-base font-semibold text-skin-text">
