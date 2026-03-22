@@ -9,6 +9,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import Constants from "expo-constants";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useDeleteAccount } from "@/hooks/useUser";
 import { showToast } from "@/utils/toast";
@@ -24,6 +25,7 @@ const INFO_LINKS = [
 ];
 
 export default function SettingsScreen() {
+  const queryClient = useQueryClient();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const deleteAccount = useDeleteAccount();
@@ -31,7 +33,14 @@ export default function SettingsScreen() {
   const handleLogout = () => {
     Alert.alert("로그아웃", "정말 로그아웃하시겠어요?", [
       { text: "취소", style: "cancel" },
-      { text: "로그아웃", style: "destructive", onPress: logout },
+      {
+        text: "로그아웃",
+        style: "destructive",
+        onPress: () => {
+          queryClient.clear();
+          logout();
+        },
+      },
     ]);
   };
 

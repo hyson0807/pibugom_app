@@ -74,7 +74,7 @@ export default function HelpScreen() {
   return (
     <SafeAreaView className="flex-1 bg-skin-bg">
       <View className="px-5 pt-4">
-        <Text className="text-2xl font-bold text-skin-text mb-4">
+        <Text className="text-2xl font-bold text-skin-primary mb-4">
           다른 사람 도와주기
         </Text>
 

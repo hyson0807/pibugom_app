@@ -13,11 +13,11 @@ const getNextPageParam = (lastPage: QuestionsResponse) =>
   lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined;
 
 export function useQuestions(category: string) {
-  return useInfiniteQuery<QuestionsResponse>({
+  return useInfiniteQuery({
     queryKey: ["questions", category],
     queryFn: ({ pageParam }) =>
       questionApi.getAll({
-        page: pageParam as number,
+        page: pageParam,
         limit: 20,
         ...(category !== "전체" && { category }),
       }),
@@ -27,20 +27,20 @@ export function useQuestions(category: string) {
 }
 
 export function useMyQuestions() {
-  return useInfiniteQuery<QuestionsResponse>({
+  return useInfiniteQuery({
     queryKey: ["myQuestions"],
     queryFn: ({ pageParam }) =>
-      questionApi.getMy({ page: pageParam as number, limit: 20 }),
+      questionApi.getMy({ page: pageParam, limit: 20 }),
     initialPageParam: 1,
     getNextPageParam,
   });
 }
 
 export function useMyAnswers() {
-  return useInfiniteQuery<QuestionsResponse>({
+  return useInfiniteQuery({
     queryKey: ["myAnswers"],
     queryFn: ({ pageParam }) =>
-      questionApi.getMyAnswers({ page: pageParam as number, limit: 20 }),
+      questionApi.getMyAnswers({ page: pageParam, limit: 20 }),
     initialPageParam: 1,
     getNextPageParam,
   });
@@ -60,8 +60,8 @@ export function useCreateQuestion() {
     mutationFn: (data: { title: string; content: string; category: string }) =>
       questionApi.create(data),
     onSuccess: () => {
-      queryClient.resetQueries({ queryKey: ["questions"] });
-      queryClient.resetQueries({ queryKey: ["myQuestions"] });
+      queryClient.invalidateQueries({ queryKey: ["questions"] });
+      queryClient.invalidateQueries({ queryKey: ["myQuestions"] });
     },
   });
 }
@@ -113,6 +113,8 @@ export function useCreateAnswer() {
       queryClient.invalidateQueries({
         queryKey: ["question", variables.questionId],
       });
+      queryClient.invalidateQueries({ queryKey: ["questions"] });
+      queryClient.invalidateQueries({ queryKey: ["myQuestions"] });
     },
   });
 }
