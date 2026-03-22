@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-query";
 import {
   questionApi,
+  type Question,
   type QuestionsResponse,
 } from "@/services/questionApi";
 
@@ -43,6 +44,43 @@ export function useMyAnswers() {
       questionApi.getMyAnswers({ page: pageParam, limit: 20 }),
     initialPageParam: 1,
     getNextPageParam,
+  });
+}
+
+export function useMyBookmarks() {
+  return useInfiniteQuery({
+    queryKey: ["myBookmarks"],
+    queryFn: ({ pageParam }) =>
+      questionApi.getMyBookmarks({ page: pageParam, limit: 20 }),
+    initialPageParam: 1,
+    getNextPageParam,
+  });
+}
+
+export function useToggleBookmark() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (questionId: string) => questionApi.toggleBookmark(questionId),
+    onMutate: async (questionId) => {
+      await queryClient.cancelQueries({ queryKey: ["question", questionId] });
+      const previous = queryClient.getQueryData<Question>(["question", questionId]);
+      if (previous) {
+        queryClient.setQueryData(["question", questionId], {
+          ...previous,
+          isBookmarked: !previous.isBookmarked,
+        });
+      }
+      return { previous };
+    },
+    onError: (_err, questionId, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(["question", questionId], context.previous);
+      }
+    },
+    onSettled: (_data, _err, questionId) => {
+      queryClient.invalidateQueries({ queryKey: ["question", questionId] });
+      queryClient.invalidateQueries({ queryKey: ["myBookmarks"] });
+    },
   });
 }
 

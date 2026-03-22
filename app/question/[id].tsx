@@ -20,6 +20,7 @@ import {
   useCreateAnswer,
   useDeleteQuestion,
   useDeleteAnswer,
+  useToggleBookmark,
 } from "@/hooks/useQuestions";
 import { useAuthStore } from "@/stores/useAuthStore";
 import QuestionActionSheet from "@/components/QuestionActionSheet";
@@ -175,6 +176,7 @@ export default function QuestionDetailScreen() {
   const createAnswer = useCreateAnswer();
   const deleteQuestion = useDeleteQuestion();
   const deleteAnswer = useDeleteAnswer();
+  const toggleBookmark = useToggleBookmark();
 
   const isMyQuestion = question?.userId === user?.id;
 
@@ -374,9 +376,21 @@ export default function QuestionDetailScreen() {
             <Text className="text-xl font-bold text-skin-text mb-2">
               {question.title}
             </Text>
-            <Text className="text-base text-skin-text leading-6 mb-4">
+            <Text className="text-base text-skin-text leading-6 mb-3">
               {question.content}
             </Text>
+            <View className="flex-row justify-end mb-3">
+              <TouchableOpacity
+                onPress={() => toggleBookmark.mutate(id)}
+                hitSlop={8}
+              >
+                <Ionicons
+                  name={question.isBookmarked ? "bookmark" : "bookmark-outline"}
+                  size={24}
+                  color={question.isBookmarked ? Colors.skinPrimary : Colors.skinTextSecondary}
+                />
+              </TouchableOpacity>
+            </View>
             <View className="h-px bg-skin-border mb-2" />
             <Text className="text-sm font-semibold text-skin-text mb-2">
               답변 {question.answerCount ?? 0}개

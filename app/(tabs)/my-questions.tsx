@@ -13,19 +13,31 @@ import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { type Question } from "@/services/questionApi";
-import { useMyQuestions, useMyAnswers } from "@/hooks/useQuestions";
+import { useMyQuestions, useMyAnswers, useMyBookmarks } from "@/hooks/useQuestions";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { timeAgo } from "@/utils/dateUtils";
 import { Colors } from "@/constants/colors";
 
 const currentYear = new Date().getFullYear();
 
-type Tab = "questions" | "answers";
+type Tab = "questions" | "answers" | "bookmarks";
 
 const GENDER_LABEL: Record<string, string> = {
   MALE: "남성",
   FEMALE: "여성",
   OTHER: "기타",
+};
+
+const TABS: { id: Tab; label: string }[] = [
+  { id: "questions", label: "내 질문" },
+  { id: "answers", label: "내 도움" },
+  { id: "bookmarks", label: "북마크" },
+];
+
+const EMPTY_MESSAGES: Record<Tab, { title: string; subtitle: string }> = {
+  questions: { title: "아직 질문이 없어요", subtitle: "홈에서 피부 고민을 질문해보세요!" },
+  answers: { title: "아직 답변한 질문이 없어요", subtitle: "도와주기 탭에서 다른 사람의 고민에 답변해보세요!" },
+  bookmarks: { title: "아직 북마크한 질문이 없어요", subtitle: "관심있는 질문을 북마크해보세요!" },
 };
 
 export default function MyQuestionsScreen() {
@@ -36,8 +48,10 @@ export default function MyQuestionsScreen() {
 
   const questionsQuery = useMyQuestions();
   const answersQuery = useMyAnswers();
+  const bookmarksQuery = useMyBookmarks();
 
-  const activeQuery = activeTab === "questions" ? questionsQuery : answersQuery;
+  const queryMap = { questions: questionsQuery, answers: answersQuery, bookmarks: bookmarksQuery };
+  const activeQuery = queryMap[activeTab];
   const { data, isLoading, isRefetching, isError, refetch, fetchNextPage, hasNextPage } = activeQuery;
 
   const items = useMemo(
@@ -48,9 +62,8 @@ export default function MyQuestionsScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchProfile();
-      questionsQuery.refetch();
-      answersQuery.refetch();
-    }, [fetchProfile])
+      activeQuery.refetch();
+    }, [fetchProfile, activeQuery])
   );
 
   const handleRefresh = () => {
@@ -129,42 +142,27 @@ export default function MyQuestionsScreen() {
 
         <View className="border-t border-skin-border pt-2">
           <View className="flex-row">
-            <TouchableOpacity
-              className="flex-1 items-center py-2"
-              onPress={() => setActiveTab("questions")}
-              activeOpacity={0.7}
-            >
-              <Text
-                className={`text-base font-semibold ${
-                  activeTab === "questions"
-                    ? "text-skin-primary"
-                    : "text-skin-text-secondary"
-                }`}
+            {TABS.map((tab) => (
+              <TouchableOpacity
+                key={tab.id}
+                className="flex-1 items-center py-2"
+                onPress={() => setActiveTab(tab.id)}
+                activeOpacity={0.7}
               >
-                내 질문
-              </Text>
-              {activeTab === "questions" && (
-                <View className="absolute bottom-0 left-4 right-4 h-0.5 bg-skin-primary rounded-full" />
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity
-              className="flex-1 items-center py-2"
-              onPress={() => setActiveTab("answers")}
-              activeOpacity={0.7}
-            >
-              <Text
-                className={`text-base font-semibold ${
-                  activeTab === "answers"
-                    ? "text-skin-primary"
-                    : "text-skin-text-secondary"
-                }`}
-              >
-                내 도움
-              </Text>
-              {activeTab === "answers" && (
-                <View className="absolute bottom-0 left-4 right-4 h-0.5 bg-skin-primary rounded-full" />
-              )}
-            </TouchableOpacity>
+                <Text
+                  className={`text-base font-semibold ${
+                    activeTab === tab.id
+                      ? "text-skin-primary"
+                      : "text-skin-text-secondary"
+                  }`}
+                >
+                  {tab.label}
+                </Text>
+                {activeTab === tab.id && (
+                  <View className="absolute bottom-0 left-4 right-4 h-0.5 bg-skin-primary rounded-full" />
+                )}
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
       </View>
@@ -222,26 +220,11 @@ export default function MyQuestionsScreen() {
         </View>
       );
     }
-    if (activeTab === "questions") {
-      return (
-        <View className="items-center py-20">
-          <Text className="text-skin-text-secondary text-base">
-            아직 질문이 없어요
-          </Text>
-          <Text className="text-skin-text-secondary text-sm mt-1">
-            홈에서 피부 고민을 질문해보세요!
-          </Text>
-        </View>
-      );
-    }
+    const { title, subtitle: sub } = EMPTY_MESSAGES[activeTab];
     return (
       <View className="items-center py-20">
-        <Text className="text-skin-text-secondary text-base">
-          아직 답변한 질문이 없어요
-        </Text>
-        <Text className="text-skin-text-secondary text-sm mt-1">
-          도와주기 탭에서 다른 사람의 고민에 답변해보세요!
-        </Text>
+        <Text className="text-skin-text-secondary text-base">{title}</Text>
+        <Text className="text-skin-text-secondary text-sm mt-1">{sub}</Text>
       </View>
     );
   }, [isError, activeTab, refetch]);

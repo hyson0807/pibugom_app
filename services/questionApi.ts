@@ -12,6 +12,7 @@ export interface Question {
   _count?: { answers: number };
   answers?: Answer[];
   answerCount?: number;
+  isBookmarked?: boolean;
 }
 
 export interface Answer {
@@ -45,6 +46,12 @@ export const questionApi = {
 
   getMyAnswers: (params?: { page?: number; limit?: number }) =>
     api.get<QuestionsResponse>("/questions/my-answers", { params }).then((r) => r.data),
+
+  getMyBookmarks: (params?: { page?: number; limit?: number }) =>
+    api.get<QuestionsResponse>("/questions/my-bookmarks", { params }).then((r) => r.data),
+
+  toggleBookmark: (questionId: string) =>
+    api.post<{ bookmarked: boolean }>(`/questions/${questionId}/bookmark`).then((r) => r.data),
 
   getOne: (id: string) =>
     api.get<Question>(`/questions/${id}`).then((r) => r.data),
