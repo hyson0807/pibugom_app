@@ -48,6 +48,8 @@ export default function MyQuestionsScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchProfile();
+      questionsQuery.refetch();
+      answersQuery.refetch();
     }, [fetchProfile])
   );
 

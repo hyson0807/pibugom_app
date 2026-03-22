@@ -115,6 +115,7 @@ export function useCreateAnswer() {
       });
       queryClient.invalidateQueries({ queryKey: ["questions"] });
       queryClient.invalidateQueries({ queryKey: ["myQuestions"] });
+      queryClient.invalidateQueries({ queryKey: ["myAnswers"] });
     },
   });
 }
@@ -134,6 +135,7 @@ export function useDeleteAnswer() {
         queryKey: ["question", variables.questionId],
       });
       queryClient.invalidateQueries({ queryKey: ["questions"] });
+      queryClient.invalidateQueries({ queryKey: ["myAnswers"] });
     },
   });
 }

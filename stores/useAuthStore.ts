@@ -108,6 +108,12 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async () => {
+    try {
+      const { api } = await import("../services/api");
+      await api.post("/auth/logout");
+    } catch {
+      // best-effort: clear local state even if server call fails
+    }
     await SecureStore.deleteItemAsync("accessToken");
     await SecureStore.deleteItemAsync("refreshToken");
     await SecureStore.deleteItemAsync("isOnboarded");
