@@ -1,12 +1,12 @@
 import { View, Text, TouchableOpacity, Alert } from "react-native";
-import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuthStore } from "../stores/useAuthStore";
-import { api } from "../services/api";
+import { useDeleteAccount } from "../hooks/useUser";
+import { showToast } from "../utils/toast";
 
 export default function SettingsScreen() {
   const logout = useAuthStore((s) => s.logout);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const deleteAccount = useDeleteAccount();
 
   const handleLogout = () => {
     Alert.alert("로그아웃", "정말 로그아웃하시겠어요?", [
@@ -24,15 +24,12 @@ export default function SettingsScreen() {
         {
           text: "탈퇴하기",
           style: "destructive",
-          onPress: async () => {
-            setIsDeleting(true);
-            try {
-              await api.delete("/users/me");
-              await logout();
-            } catch {
-              setIsDeleting(false);
-              Alert.alert("오류", "탈퇴 처리 중 문제가 발생했어요.");
-            }
+          onPress: () => {
+            deleteAccount.mutate(undefined, {
+              onError: () => {
+                showToast("error", "탈퇴 처리 중 문제가 발생했어요.");
+              },
+            });
           },
         },
       ]
@@ -52,12 +49,12 @@ export default function SettingsScreen() {
 
         <TouchableOpacity
           onPress={handleDeleteAccount}
-          disabled={isDeleting}
+          disabled={deleteAccount.isPending}
           className="bg-skin-surface rounded-2xl p-4 mb-3 border border-skin-border"
           activeOpacity={0.7}
         >
           <Text className="text-base font-medium text-skin-error">
-            {isDeleting ? "처리 중..." : "회원탈퇴"}
+            {deleteAccount.isPending ? "처리 중..." : "회원탈퇴"}
           </Text>
         </TouchableOpacity>
       </View>

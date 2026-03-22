@@ -1,24 +1,25 @@
-import { useState } from "react";
+import { useState, useLayoutEffect, useCallback } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   Image,
-  Alert,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useNavigation } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "../stores/useAuthStore";
-import { userApi } from "../services/userApi";
+import { useUpdateProfile } from "../hooks/useUser";
+import { showToast } from "../utils/toast";
 import { Colors } from "../constants/colors";
 import { SKIN_CATEGORIES } from "../constants/skinCategories";
 import WheelPicker, { ITEM_HEIGHT, VISIBLE_ITEMS } from "../components/WheelPicker";
+import { pickAndCompressImage } from "../utils/imageUpload";
 
 const GENDERS = [
   { value: "MALE", label: "남성", icon: "male" as const },
@@ -36,8 +37,9 @@ const MONTH_NAMES = [
 
 export default function EditProfileScreen() {
   const router = useRouter();
+  const navigation = useNavigation();
   const user = useAuthStore((s) => s.user);
-  const setUser = useAuthStore((s) => s.setUser);
+  const updateProfile = useUpdateProfile();
 
   const [nickname, setNickname] = useState(user?.nickname ?? "");
   const [gender, setGender] = useState(user?.gender ?? "");
@@ -51,7 +53,6 @@ export default function EditProfileScreen() {
     type: string;
     name: string;
   } | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
 
   const displayImage = newImage?.uri ?? user?.profileImage;
 
@@ -64,79 +65,66 @@ export default function EditProfileScreen() {
   };
 
   const handlePickImage = async () => {
-    const { pickAndCompressImage } = await import("../utils/imageUpload");
     const image = await pickAndCompressImage();
     if (image) {
       setNewImage(image);
     }
   };
 
-  const handleSave = async () => {
-    const trimmed = nickname.trim();
-    const nicknameChanged = trimmed !== (user?.nickname ?? "");
-    const imageChanged = !!newImage;
-    const genderChanged = gender !== (user?.gender ?? "");
-    const birthMonthChanged = birthMonth !== (user?.birthMonth ?? 1);
-    const birthYearChanged = birthYear !== (user?.birthYear ?? 2000);
-    const skinConcernsChanged =
-      JSON.stringify(skinConcerns) !== JSON.stringify(user?.skinConcerns ?? []);
-
-    const hasChanges =
-      nicknameChanged ||
-      imageChanged ||
-      genderChanged ||
-      birthMonthChanged ||
-      birthYearChanged ||
-      skinConcernsChanged;
-
-    if (!hasChanges) {
-      router.back();
-      return;
-    }
-
+  const handleSave = useCallback(() => {
     if (skinConcerns.length === 0) {
-      Alert.alert("알림", "피부 고민을 최소 1개 이상 선택해주세요.");
+      showToast("info", "피부 고민을 최소 1개 이상 선택해주세요.");
       return;
     }
 
-    setIsSaving(true);
-    try {
-      const formData = new FormData();
-      if (nicknameChanged && trimmed) {
-        formData.append("nickname", trimmed);
-      }
-      if (genderChanged && gender) {
-        formData.append("gender", gender);
-      }
-      if (birthMonthChanged) {
-        formData.append("birthMonth", String(birthMonth));
-      }
-      if (birthYearChanged) {
-        formData.append("birthYear", String(birthYear));
-      }
-      if (skinConcernsChanged) {
-        formData.append("skinConcerns", JSON.stringify(skinConcerns));
-      }
-      if (newImage) {
-        formData.append("profileImage", {
-          uri: newImage.uri,
-          type: newImage.type,
-          name: newImage.name,
-        } as unknown as Blob);
-      }
-      const updated = await userApi.updateProfile(formData);
-      setUser(updated);
-      router.back();
-    } catch {
-      Alert.alert("오류", "프로필 수정에 실패했어요. 다시 시도해주세요.");
-    } finally {
-      setIsSaving(false);
+    const trimmed = nickname.trim();
+    const formData = new FormData();
+    if (trimmed) formData.append("nickname", trimmed);
+    if (gender) formData.append("gender", gender);
+    formData.append("birthMonth", String(birthMonth));
+    formData.append("birthYear", String(birthYear));
+    formData.append("skinConcerns", JSON.stringify(skinConcerns));
+    if (newImage) {
+      formData.append("profileImage", {
+        uri: newImage.uri,
+        type: newImage.type,
+        name: newImage.name,
+      } as unknown as Blob);
     }
-  };
+
+    updateProfile.mutate(formData, {
+      onSuccess: () => {
+        router.back();
+      },
+      onError: () => {
+        showToast("error", "프로필 수정에 실패했어요. 다시 시도해주세요.");
+      },
+    });
+  }, [nickname, gender, birthMonth, birthYear, skinConcerns, newImage, updateProfile, router]);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerBackVisible: false,
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+          <Text className="text-sm font-medium text-skin-primary">취소</Text>
+        </TouchableOpacity>
+      ),
+      headerTitleStyle: { fontSize: 14, fontWeight: "600" },
+      headerRight: () => (
+        <TouchableOpacity onPress={handleSave} disabled={updateProfile.isPending} hitSlop={8}>
+          {updateProfile.isPending ? (
+            <ActivityIndicator size="small" color={Colors.skinPrimary} />
+          ) : (
+            <Text className="text-sm font-medium text-skin-primary">저장</Text>
+          )}
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, handleSave, updateProfile.isPending, router]);
 
   const monthIndex = birthMonth - 1;
   const yearIndex = YEARS.indexOf(birthYear);
-  const age = currentYear - birthYear;
 
   return (
     <SafeAreaView className="flex-1 bg-skin-bg" edges={["bottom"]}>
@@ -189,10 +177,43 @@ export default function EditProfileScreen() {
               placeholderTextColor={Colors.skinPlaceholder}
               maxLength={20}
               autoCapitalize="none"
+              keyboardAppearance="dark"
             />
             <Text className="text-xs text-skin-text-secondary mt-1 text-right">
               {nickname.length}/20
             </Text>
+          </View>
+
+          {/* Skin concerns */}
+          <View className="mb-6">
+            <Text className="text-sm font-medium text-skin-text mb-2">
+              피부 고민
+            </Text>
+            <View className="flex-row flex-wrap gap-2">
+              {SKIN_CATEGORIES.map((concern) => {
+                const isSelected = skinConcerns.includes(concern);
+                return (
+                  <TouchableOpacity
+                    key={concern}
+                    className={`rounded-full px-4 py-2 ${
+                      isSelected
+                        ? "bg-skin-primary"
+                        : "bg-skin-surface border border-skin-border"
+                    }`}
+                    onPress={() => toggleConcern(concern)}
+                    activeOpacity={0.7}
+                  >
+                    <Text
+                      className={`text-sm font-medium ${
+                        isSelected ? "text-white" : "text-skin-text-secondary"
+                      }`}
+                    >
+                      {concern}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           </View>
 
           {/* Gender selection */}
@@ -200,13 +221,13 @@ export default function EditProfileScreen() {
             <Text className="text-sm font-medium text-skin-text mb-2">
               성별
             </Text>
-            <View className="flex-row gap-3">
+            <View className="flex-row flex-wrap gap-2">
               {GENDERS.map((g) => {
                 const isSelected = gender === g.value;
                 return (
                   <TouchableOpacity
                     key={g.value}
-                    className={`flex-1 rounded-xl py-3 flex-row items-center justify-center ${
+                    className={`rounded-full px-4 py-2 flex-row items-center ${
                       isSelected
                         ? "bg-skin-primary"
                         : "bg-skin-surface border border-skin-border"
@@ -239,73 +260,27 @@ export default function EditProfileScreen() {
             </Text>
             <View
               className="flex-row mx-2"
-              style={{ height: ITEM_HEIGHT * VISIBLE_ITEMS }}
+              style={{ height: ITEM_HEIGHT * 3 }}
             >
               <WheelPicker
                 data={MONTHS}
                 labels={MONTH_NAMES}
                 selectedIndex={monthIndex}
                 onSelect={(m) => setBirthMonth(m)}
+                visibleItems={3}
               />
               <View className="w-4" />
               <WheelPicker
                 data={YEARS}
                 selectedIndex={yearIndex}
                 onSelect={(y) => setBirthYear(y)}
+                visibleItems={3}
               />
             </View>
-            <Text className="text-center text-skin-text text-base font-semibold mt-2">
-              {age}세
-            </Text>
           </View>
 
-          {/* Skin concerns */}
-          <View className="mb-8">
-            <Text className="text-sm font-medium text-skin-text mb-2">
-              피부 고민
-            </Text>
-            <View className="flex-row flex-wrap gap-2">
-              {SKIN_CATEGORIES.map((concern) => {
-                const isSelected = skinConcerns.includes(concern);
-                return (
-                  <TouchableOpacity
-                    key={concern}
-                    className={`rounded-full px-4 py-2 ${
-                      isSelected
-                        ? "bg-skin-primary"
-                        : "bg-skin-surface border border-skin-border"
-                    }`}
-                    onPress={() => toggleConcern(concern)}
-                    activeOpacity={0.7}
-                  >
-                    <Text
-                      className={`text-sm font-medium ${
-                        isSelected ? "text-white" : "text-skin-text-secondary"
-                      }`}
-                    >
-                      {concern}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
 
-          {/* Save button */}
-          <TouchableOpacity
-            className={`rounded-xl py-3.5 items-center ${
-              isSaving ? "bg-skin-primary/50" : "bg-skin-primary"
-            }`}
-            onPress={handleSave}
-            disabled={isSaving}
-            activeOpacity={0.8}
-          >
-            {isSaving ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text className="text-base font-semibold text-white">저장</Text>
-            )}
-          </TouchableOpacity>
+
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

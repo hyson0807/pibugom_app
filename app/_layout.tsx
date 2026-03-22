@@ -2,6 +2,9 @@ import "../global.css";
 import { useEffect } from "react";
 import { Stack, useSegments, useRouter } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Toast from "react-native-toast-message";
+import { toastConfig } from "../components/ToastConfig";
 import { useAuthStore } from "../stores/useAuthStore";
 import { View, ActivityIndicator } from "react-native";
 import { Colors } from "../constants/colors";
@@ -14,6 +17,15 @@ const detailHeaderOptions = {
   headerTintColor: Colors.skinPrimary,
   headerStyle: { backgroundColor: Colors.skinBg },
 };
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 30_000,
+      retry: 1,
+    },
+  },
+});
 
 export default function RootLayout() {
   const isInitialized = useAuthStore((s) => s.isInitialized);
@@ -54,25 +66,32 @@ export default function RootLayout() {
   }
 
   return (
-    <SafeAreaProvider>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="(auth)" options={{ animation: "none" }} />
-        <Stack.Screen name="(onboarding)" options={{ animation: "none" }} />
-        <Stack.Screen name="(tabs)" options={{ animation: "none" }} />
-        <Stack.Screen
-          name="question/[id]"
-          options={{ ...detailHeaderOptions, headerTitle: "질문 상세" }}
-        />
-        <Stack.Screen
-          name="settings"
-          options={{ ...detailHeaderOptions, headerTitle: "설정" }}
-        />
-        <Stack.Screen
-          name="edit-profile"
-          options={{ ...detailHeaderOptions, headerTitle: "프로필 수정" }}
-        />
-      </Stack>
-    </SafeAreaProvider>
+    <QueryClientProvider client={queryClient}>
+      <SafeAreaProvider>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="(auth)" options={{ animation: "none" }} />
+          <Stack.Screen name="(onboarding)" options={{ animation: "none" }} />
+          <Stack.Screen name="(tabs)" options={{ animation: "none" }} />
+          <Stack.Screen
+            name="question/[id]"
+            options={{ ...detailHeaderOptions, headerTitle: "질문 상세" }}
+          />
+          <Stack.Screen
+            name="question/edit/[id]"
+            options={{ ...detailHeaderOptions, headerTitle: "질문 수정" }}
+          />
+          <Stack.Screen
+            name="settings"
+            options={{ ...detailHeaderOptions, headerTitle: "설정" }}
+          />
+          <Stack.Screen
+            name="edit-profile"
+            options={{ ...detailHeaderOptions, headerTitle: "프로필 수정" }}
+          />
+        </Stack>
+        <Toast config={toastConfig} />
+      </SafeAreaProvider>
+    </QueryClientProvider>
   );
 }

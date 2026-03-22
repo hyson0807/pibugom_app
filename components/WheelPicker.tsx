@@ -1,7 +1,7 @@
 import { View, Text, ScrollView } from "react-native";
 import { useRef, useCallback } from "react";
 
-const ITEM_HEIGHT = 50;
+const ITEM_HEIGHT = 36;
 const VISIBLE_ITEMS = 5;
 
 interface WheelPickerProps {
@@ -9,6 +9,7 @@ interface WheelPickerProps {
   labels?: string[];
   selectedIndex: number;
   onSelect: (value: number) => void;
+  visibleItems?: number;
 }
 
 export default function WheelPicker({
@@ -16,9 +17,10 @@ export default function WheelPicker({
   labels,
   selectedIndex,
   onSelect,
+  visibleItems = VISIBLE_ITEMS,
 }: WheelPickerProps) {
   const scrollRef = useRef<ScrollView>(null);
-  const paddingItems = Math.floor(VISIBLE_ITEMS / 2);
+  const paddingItems = Math.floor(visibleItems / 2);
 
   const handleScroll = useCallback(
     (event: { nativeEvent: { contentOffset: { y: number } } }) => {
@@ -32,7 +34,17 @@ export default function WheelPicker({
   );
 
   return (
-    <View style={{ height: ITEM_HEIGHT * VISIBLE_ITEMS }} className="flex-1">
+    <View style={{ height: ITEM_HEIGHT * visibleItems }} className="flex-1">
+      {/* Selection indicator (behind scroll content) */}
+      <View
+        pointerEvents="none"
+        className="absolute left-0 right-0 rounded-full bg-skin-primary"
+        style={{
+          top: ITEM_HEIGHT * paddingItems,
+          height: ITEM_HEIGHT,
+        }}
+      />
+
       <ScrollView
         ref={scrollRef}
         showsVerticalScrollIndicator={false}
@@ -53,9 +65,9 @@ export default function WheelPicker({
               className="items-center justify-center"
             >
               <Text
-                className={`text-xl ${
+                className={`text-sm ${
                   isSelected
-                    ? "text-white font-bold text-2xl"
+                    ? "text-white font-bold text-base"
                     : "text-white/30 font-medium"
                 }`}
               >
@@ -65,16 +77,6 @@ export default function WheelPicker({
           );
         })}
       </ScrollView>
-
-      {/* Selection indicator */}
-      <View
-        pointerEvents="none"
-        className="absolute left-0 right-0 rounded-lg bg-white/10"
-        style={{
-          top: ITEM_HEIGHT * paddingItems,
-          height: ITEM_HEIGHT,
-        }}
-      />
     </View>
   );
 }

@@ -4,13 +4,13 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  Alert,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
 import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { questionApi } from "../../services/questionApi";
+import { useCreateQuestion } from "../../hooks/useQuestions";
+import { showToast } from "../../utils/toast";
 import { SKIN_CATEGORIES } from "../../constants/skinCategories";
 import { Colors } from "../../constants/colors";
 
@@ -18,26 +18,28 @@ export default function HomeScreen() {
   const [category, setCategory] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const createQuestion = useCreateQuestion();
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!category || !title.trim() || !content.trim()) {
-      Alert.alert("알림", "카테고리, 제목, 내용을 모두 입력해주세요.");
+      showToast("info", "카테고리, 제목, 내용을 모두 입력해주세요.");
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      await questionApi.create({ title: title.trim(), content: content.trim(), category });
-      Alert.alert("완료", "질문이 등록되었습니다!");
-      setCategory("");
-      setTitle("");
-      setContent("");
-    } catch {
-      Alert.alert("오류", "질문 등록에 실패했습니다.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    createQuestion.mutate(
+      { title: title.trim(), content: content.trim(), category },
+      {
+        onSuccess: () => {
+          showToast("success", "질문이 등록되었습니다!");
+          setCategory("");
+          setTitle("");
+          setContent("");
+        },
+        onError: () => {
+          showToast("error", "질문 등록에 실패했습니다.");
+        },
+      }
+    );
   };
 
   return (
@@ -97,6 +99,7 @@ export default function HomeScreen() {
             placeholderTextColor={Colors.skinPlaceholder}
             value={title}
             onChangeText={setTitle}
+            keyboardAppearance="dark"
           />
 
           {/* Content */}
@@ -112,6 +115,7 @@ export default function HomeScreen() {
             multiline
             numberOfLines={6}
             textAlignVertical="top"
+            keyboardAppearance="dark"
             style={{ minHeight: 150 }}
           />
 
@@ -124,12 +128,12 @@ export default function HomeScreen() {
             }`}
             onPress={handleSubmit}
             disabled={
-              !category || !title.trim() || !content.trim() || isSubmitting
+              !category || !title.trim() || !content.trim() || createQuestion.isPending
             }
             activeOpacity={0.8}
           >
             <Text className="text-white text-lg font-semibold">
-              {isSubmitting ? "등록 중..." : "질문 올리기"}
+              {createQuestion.isPending ? "등록 중..." : "질문 올리기"}
             </Text>
           </TouchableOpacity>
         </ScrollView>

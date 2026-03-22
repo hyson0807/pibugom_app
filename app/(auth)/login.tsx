@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { View, Text, TouchableOpacity, Alert, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -8,6 +8,7 @@ import * as WebBrowser from "expo-web-browser";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { api } from "../../services/api";
 import { Colors } from "../../constants/colors";
+import { showToast } from "../../utils/toast";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -30,7 +31,7 @@ export default function WelcomeScreen() {
         const accessToken = response.authentication?.accessToken;
 
         if (!idToken && !accessToken) {
-          Alert.alert("오류", "Google 인증에 실패했습니다.");
+          showToast("error", "Google 인증에 실패했습니다.");
           return;
         }
 
@@ -46,7 +47,7 @@ export default function WelcomeScreen() {
           router.replace("/(onboarding)/age");
         }
       } catch {
-        Alert.alert("오류", "로그인 중 문제가 발생했습니다.");
+        showToast("error", "로그인 중 문제가 발생했습니다.");
       }
     };
 

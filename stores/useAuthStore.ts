@@ -57,6 +57,16 @@ export const useAuthStore = create<AuthState>((set) => ({
         isAuthenticated: !!accessToken,
         isInitialized: true,
       });
+
+      if (accessToken) {
+        const { api } = await import("../services/api");
+        try {
+          const { data } = await api.get<User>("/users/me");
+          set({ user: data });
+        } catch {
+          // profile fetch is best-effort
+        }
+      }
     } catch {
       set({ isInitialized: true });
     }

@@ -7,15 +7,18 @@ import {
   RefreshControl,
   Image,
 } from "react-native";
-import { useState, useCallback, useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { questionApi, type Question } from "../../services/questionApi";
+import { type Question } from "../../services/questionApi";
+import { useMyQuestions } from "../../hooks/useQuestions";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { timeAgo } from "../../utils/dateUtils";
 import { Colors } from "../../constants/colors";
+
+const currentYear = new Date().getFullYear();
 
 const GENDER_LABEL: Record<string, string> = {
   MALE: "남성",
@@ -27,53 +30,37 @@ export default function MyQuestionsScreen() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const fetchProfile = useAuthStore((s) => s.fetchProfile);
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [hasError, setHasError] = useState(false);
 
-  const fetchQuestions = useCallback(async (p = 1, refresh = false) => {
-    try {
-      setHasError(false);
-      const data = await questionApi.getMy({ page: p, limit: 20 });
-      if (refresh || p === 1) {
-        setQuestions(data.questions);
-      } else {
-        setQuestions((prev) => [...prev, ...data.questions]);
-      }
-      setTotalPages(data.totalPages);
-      setPage(p);
-    } catch {
-      setHasError(true);
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
-  }, []);
+  const {
+    data,
+    isLoading,
+    isRefetching,
+    isError,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+  } = useMyQuestions();
+
+  const questions = useMemo(
+    () => data?.pages.flatMap((p) => p.questions) ?? [],
+    [data]
+  );
 
   useFocusEffect(
     useCallback(() => {
-      Promise.all([fetchProfile(), fetchQuestions(1, true)]);
-    }, [fetchProfile, fetchQuestions])
+      fetchProfile();
+    }, [fetchProfile])
   );
 
   const handleRefresh = () => {
-    setIsRefreshing(true);
-    Promise.all([fetchProfile(), fetchQuestions(1, true)]);
-  };
-
-  const handleLoadMore = () => {
-    if (page < totalPages) {
-      fetchQuestions(page + 1);
-    }
+    fetchProfile();
+    refetch();
   };
 
   const subtitle = useMemo(() => {
     const parts: string[] = [];
     if (user?.birthYear) {
-      parts.push(`${new Date().getFullYear() - user.birthYear}세`);
+      parts.push(`${currentYear - user.birthYear}세`);
     }
     if (user?.gender) {
       parts.push(GENDER_LABEL[user.gender] ?? user.gender);
@@ -84,19 +71,8 @@ export default function MyQuestionsScreen() {
   const renderProfileHeader = useCallback(
     () => (
       <View className="mb-4">
-        <View className="flex-row items-center justify-between mb-4">
-          <View className="flex-1 mr-4">
-            <Text className="text-2xl font-bold text-skin-text">
-              {user?.nickname ?? "닉네임 없음"}
-            </Text>
-            {subtitle ? (
-              <Text className="text-sm text-skin-text-secondary mt-1">
-                {subtitle}
-              </Text>
-            ) : null}
-          </View>
-
-          <View>
+        <View className="flex-row items-center mb-4 pt-4">
+          <View className="mr-5 mb-2">
             {user?.profileImage ? (
               <Image
                 source={{ uri: user.profileImage }}
@@ -111,6 +87,17 @@ export default function MyQuestionsScreen() {
                 />
               </View>
             )}
+          </View>
+
+          <View>
+            <Text className="text-2xl font-bold text-skin-text">
+              {user?.nickname ?? "닉네임 없음"}
+            </Text>
+            {subtitle ? (
+              <Text className="text-sm text-skin-text-secondary mt-1">
+                {subtitle}
+              </Text>
+            ) : null}
           </View>
         </View>
 
@@ -149,7 +136,7 @@ export default function MyQuestionsScreen() {
     [user, subtitle, router]
   );
 
-  const renderQuestion = ({ item }: { item: Question }) => (
+  const renderQuestion = useCallback(({ item }: { item: Question }) => (
     <TouchableOpacity
       className="bg-skin-surface rounded-2xl p-4 mb-3 border border-skin-border"
       onPress={() => router.push(`/question/${item.id}`)}
@@ -182,12 +169,11 @@ export default function MyQuestionsScreen() {
         </View>
       </View>
     </TouchableOpacity>
-  );
+  ), [router]);
 
   return (
     <SafeAreaView className="flex-1 bg-skin-bg">
-      <View className="px-5 pt-4 mb-2 flex-row items-center justify-between">
-        <Text className="text-2xl font-bold text-skin-text">프로필</Text>
+      <View className="px-5 pt-4 mb-2 flex-row items-center justify-end">
         <TouchableOpacity
           onPress={() => router.push("/settings")}
           hitSlop={8}
@@ -209,20 +195,22 @@ export default function MyQuestionsScreen() {
           ListHeaderComponent={renderProfileHeader}
           refreshControl={
             <RefreshControl
-              refreshing={isRefreshing}
+              refreshing={isRefetching}
               onRefresh={handleRefresh}
               tintColor={Colors.skinPrimary}
             />
           }
-          onEndReached={handleLoadMore}
+          onEndReached={() => {
+            if (hasNextPage) fetchNextPage();
+          }}
           onEndReachedThreshold={0.5}
           ListEmptyComponent={
-            hasError ? (
+            isError ? (
               <View className="items-center py-20">
                 <Text className="text-skin-text-secondary text-base mb-3">
                   불러오기에 실패했어요
                 </Text>
-                <TouchableOpacity onPress={() => fetchQuestions(1, true)}>
+                <TouchableOpacity onPress={() => refetch()}>
                   <Text className="text-skin-primary text-sm font-medium">
                     다시 시도
                   </Text>

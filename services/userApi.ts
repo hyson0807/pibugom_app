@@ -10,4 +10,6 @@ export const userApi = {
         headers: { "Content-Type": "multipart/form-data" },
       })
       .then((r) => r.data),
+
+  deleteAccount: () => api.delete("/users/me").then((r) => r.data),
 };

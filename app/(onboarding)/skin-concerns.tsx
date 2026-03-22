@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Alert } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
@@ -6,6 +6,7 @@ import { useOnboardingStore } from "../../stores/useOnboardingStore";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { api } from "../../services/api";
 import { SKIN_CATEGORIES } from "../../constants/skinCategories";
+import { showToast } from "../../utils/toast";
 
 export default function SkinConcernsScreen() {
   const router = useRouter();
@@ -28,7 +29,7 @@ export default function SkinConcernsScreen() {
       setOnboarded();
       reset();
     } catch {
-      Alert.alert("오류", "저장 중 문제가 발생했습니다.");
+      showToast("error", "저장 중 문제가 발생했습니다.");
     } finally {
       setIsSubmitting(false);
     }

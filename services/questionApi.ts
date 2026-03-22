@@ -42,6 +42,13 @@ export const questionApi = {
   getOne: (id: string) =>
     api.get<Question>(`/questions/${id}`).then((r) => r.data),
 
+  update: (
+    id: string,
+    data: { title?: string; content?: string; category?: string }
+  ) => api.patch<Question>(`/questions/${id}`, data).then((r) => r.data),
+
+  delete: (id: string) => api.delete(`/questions/${id}`).then((r) => r.data),
+
   createAnswer: (questionId: string, content: string) =>
     api
       .post<Answer>(`/questions/${questionId}/answers`, { content })

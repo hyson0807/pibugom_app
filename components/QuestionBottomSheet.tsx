@@ -4,7 +4,6 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  Alert,
   Modal,
   KeyboardAvoidingView,
   Platform,
@@ -12,7 +11,8 @@ import {
 } from "react-native";
 import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { questionApi } from "../services/questionApi";
+import { useCreateQuestion } from "../hooks/useQuestions";
+import { showToast } from "../utils/toast";
 import { SKIN_CATEGORIES } from "../constants/skinCategories";
 import { Colors } from "../constants/colors";
 
@@ -25,7 +25,7 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
   const [category, setCategory] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const createQuestion = useCreateQuestion();
 
   const resetForm = () => {
     setCategory("");
@@ -38,26 +38,24 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
     onClose();
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!category || !title.trim() || !content.trim()) {
-      Alert.alert("알림", "카테고리, 제목, 내용을 모두 입력해주세요.");
+      showToast("info", "카테고리, 제목, 내용을 모두 입력해주세요.");
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      await questionApi.create({
-        title: title.trim(),
-        content: content.trim(),
-        category,
-      });
-      Alert.alert("완료", "질문이 등록되었습니다!");
-      handleClose();
-    } catch {
-      Alert.alert("오류", "질문 등록에 실패했습니다.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    createQuestion.mutate(
+      { title: title.trim(), content: content.trim(), category },
+      {
+        onSuccess: () => {
+          showToast("success", "질문이 등록되었습니다!");
+          handleClose();
+        },
+        onError: () => {
+          showToast("error", "질문 등록에 실패했습니다.");
+        },
+      }
+    );
   };
 
   return (
@@ -167,6 +165,7 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
                 placeholderTextColor={Colors.skinPlaceholder}
                 value={title}
                 onChangeText={setTitle}
+                keyboardAppearance="dark"
               />
 
               {/* Content */}
@@ -189,6 +188,7 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
                 placeholderTextColor={Colors.skinPlaceholder}
                 value={content}
                 onChangeText={setContent}
+                keyboardAppearance="dark"
                 multiline
                 numberOfLines={5}
                 textAlignVertical="top"
@@ -207,11 +207,11 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
                       : Colors.skinInactive,
                 }}
                 onPress={handleSubmit}
-                disabled={!category || !title.trim() || !content.trim() || isSubmitting}
+                disabled={!category || !title.trim() || !content.trim() || createQuestion.isPending}
                 activeOpacity={0.8}
               >
                 <Text style={{ color: "#FFFFFF", fontSize: 17, fontWeight: "600" }}>
-                  {isSubmitting ? "등록 중..." : "질문 올리기"}
+                  {createQuestion.isPending ? "등록 중..." : "질문 올리기"}
                 </Text>
               </TouchableOpacity>
             </ScrollView>
