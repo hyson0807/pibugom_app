@@ -27,6 +27,8 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
   const [content, setContent] = useState("");
   const createQuestion = useCreateQuestion();
 
+  const isFormValid = category && title.trim() && content.trim();
+
   const resetForm = () => {
     setCategory("");
     setTitle("");
@@ -39,7 +41,7 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
   };
 
   const handleSubmit = () => {
-    if (!category || !title.trim() || !content.trim()) {
+    if (!isFormValid) {
       showToast("info", "카테고리, 제목, 내용을 모두 입력해주세요.");
       return;
     }
@@ -78,43 +80,49 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
         >
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : undefined}
+            style={{ flex: 1 }}
           >
-            {/* Handle bar */}
-            <View style={{ alignItems: "center", paddingTop: 12, paddingBottom: 4 }}>
-              <View
-                style={{
-                  width: 40,
-                  height: 4,
-                  borderRadius: 2,
-                  backgroundColor: Colors.skinBorder,
-                }}
-              />
-            </View>
-
-            {/* Header */}
+            {/* Header: X / 질문하기 / 완료 */}
             <View
               style={{
                 flexDirection: "row",
                 alignItems: "center",
                 justifyContent: "space-between",
                 paddingHorizontal: 20,
-                paddingVertical: 12,
+                paddingTop: 16,
+                paddingBottom: 12,
               }}
             >
-              <Text style={{ fontSize: 20, fontWeight: "bold", color: Colors.skinText }}>
-                피부 고민 질문하기
+              <TouchableOpacity onPress={handleClose} style={{ width: 60 }}>
+                <Ionicons name="close" size={26} color={Colors.skinText} />
+              </TouchableOpacity>
+              <Text style={{ fontSize: 17, fontWeight: "600", color: Colors.skinText }}>
+                질문하기
               </Text>
-              <TouchableOpacity onPress={handleClose}>
-                <Ionicons name="close" size={24} color={Colors.skinTextSecondary} />
+              <TouchableOpacity
+                onPress={handleSubmit}
+                disabled={!isFormValid || createQuestion.isPending}
+                style={{ width: 60, alignItems: "flex-end" }}
+              >
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: "600",
+                    color: isFormValid ? Colors.skinPrimary : Colors.skinInactive,
+                  }}
+                >
+                  {createQuestion.isPending ? "등록 중..." : "완료"}
+                </Text>
               </TouchableOpacity>
             </View>
 
-            <ScrollView style={{ paddingHorizontal: 20 }} keyboardShouldPersistTaps="handled">
+            <ScrollView
+              style={{ flex: 1, paddingHorizontal: 20 }}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
               {/* Category selector */}
-              <Text style={{ fontSize: 13, fontWeight: "500", color: Colors.skinTextSecondary, marginBottom: 8 }}>
-                카테고리
-              </Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 20 }}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 8, marginBottom: 24 }}>
                 <View style={{ flexDirection: "row", gap: 8 }}>
                   {SKIN_CATEGORIES.map((cat) => {
                     const isSelected = category === cat;
@@ -147,73 +155,63 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
               </ScrollView>
 
               {/* Title */}
-              <Text style={{ fontSize: 13, fontWeight: "500", color: Colors.skinTextSecondary, marginBottom: 8 }}>
-                제목
-              </Text>
               <TextInput
                 style={{
-                  backgroundColor: Colors.skinSurface,
-                  borderWidth: 1,
-                  borderColor: Colors.skinBorder,
-                  borderRadius: 12,
-                  paddingHorizontal: 16,
-                  paddingVertical: 12,
+                  fontSize: 22,
+                  fontWeight: "bold",
                   color: Colors.skinText,
-                  marginBottom: 16,
+                  paddingVertical: 12,
                 }}
-                placeholder="어떤 고민이 있나요?"
-                placeholderTextColor={Colors.skinPlaceholder}
+                placeholder="제목을 입력해주세요."
+                placeholderTextColor={Colors.skinTextSecondary}
                 value={title}
                 onChangeText={setTitle}
                 keyboardAppearance="dark"
               />
+              <View
+                style={{
+                  height: 0.5,
+                  backgroundColor: Colors.skinBorder,
+                  marginBottom: 16,
+                }}
+              />
 
               {/* Content */}
-              <Text style={{ fontSize: 13, fontWeight: "500", color: Colors.skinTextSecondary, marginBottom: 8 }}>
-                내용
-              </Text>
               <TextInput
                 style={{
-                  backgroundColor: Colors.skinSurface,
-                  borderWidth: 1,
-                  borderColor: Colors.skinBorder,
-                  borderRadius: 12,
-                  paddingHorizontal: 16,
-                  paddingVertical: 12,
+                  fontSize: 15,
                   color: Colors.skinText,
-                  marginBottom: 24,
-                  minHeight: 120,
+                  minHeight: 150,
+                  paddingVertical: 4,
+                  lineHeight: 22,
                 }}
                 placeholder="피부 고민을 자세히 적어주세요..."
-                placeholderTextColor={Colors.skinPlaceholder}
+                placeholderTextColor={Colors.skinTextSecondary}
                 value={content}
                 onChangeText={setContent}
                 keyboardAppearance="dark"
                 multiline
-                numberOfLines={5}
                 textAlignVertical="top"
               />
 
-              {/* Submit */}
-              <TouchableOpacity
-                style={{
-                  borderRadius: 24,
-                  paddingVertical: 16,
-                  alignItems: "center",
-                  marginBottom: 40,
-                  backgroundColor:
-                    category && title.trim() && content.trim()
-                      ? Colors.skinPrimary
-                      : Colors.skinInactive,
-                }}
-                onPress={handleSubmit}
-                disabled={!category || !title.trim() || !content.trim() || createQuestion.isPending}
-                activeOpacity={0.8}
-              >
-                <Text style={{ color: "#FFFFFF", fontSize: 17, fontWeight: "600" }}>
-                  {createQuestion.isPending ? "등록 중..." : "질문 올리기"}
+              {/* Community Rules */}
+              <View style={{ marginTop: 60, marginBottom: 40 }}>
+                <Text style={{ fontSize: 13, color: Colors.skinTextSecondary, lineHeight: 20 }}>
+                  피부곰은 누구나 기분 좋게 참여할 수 있는 커뮤니티를 만들기 위해 커뮤니티 이용규칙을 제정하여 운영하고 있습니다. 위반 시 게시물이 삭제되고 서비스 이용이 일정 기간 제한될 수 있습니다.
                 </Text>
-              </TouchableOpacity>
+
+                <Text style={{ fontSize: 13, color: Colors.skinTextSecondary, lineHeight: 20, marginTop: 16 }}>
+                  아래는 이 게시판에 해당하는 핵심 내용에 대한 요약 사항이며, 게시물 작성 전 커뮤니티 이용규칙 전문을 반드시 확인하시기 바랍니다.
+                </Text>
+
+                <Text style={{ fontSize: 13, color: Colors.skinTextSecondary, lineHeight: 20, marginTop: 16 }}>
+                  {"※ 광고·홍보 관련 행위 금지\n- 영리 여부와 관계 없이 특정 제품, 병원, 시술을 홍보하는 게시물 작성 행위\n- 바이럴 홍보 및 체험단 후기로 의심되는 게시물 작성 행위"}
+                </Text>
+
+                <Text style={{ fontSize: 13, color: Colors.skinTextSecondary, lineHeight: 20, marginTop: 16 }}>
+                  {"※ 허위 정보 유포 금지\n- 검증되지 않은 의학 정보를 사실처럼 전달하는 행위\n- 특정 치료법이나 제품의 효과를 과장하거나 왜곡하는 행위"}
+                </Text>
+              </View>
             </ScrollView>
           </KeyboardAvoidingView>
         </Pressable>

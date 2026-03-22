@@ -50,8 +50,8 @@ export function useCreateQuestion() {
     mutationFn: (data: { title: string; content: string; category: string }) =>
       questionApi.create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["questions"] });
-      queryClient.invalidateQueries({ queryKey: ["myQuestions"] });
+      queryClient.resetQueries({ queryKey: ["questions"] });
+      queryClient.resetQueries({ queryKey: ["myQuestions"] });
     },
   });
 }
