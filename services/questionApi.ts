@@ -43,6 +43,9 @@ export const questionApi = {
   getMy: (params?: { page?: number; limit?: number }) =>
     api.get<QuestionsResponse>("/questions/my", { params }).then((r) => r.data),
 
+  getMyAnswers: (params?: { page?: number; limit?: number }) =>
+    api.get<QuestionsResponse>("/questions/my-answers", { params }).then((r) => r.data),
+
   getOne: (id: string) =>
     api.get<Question>(`/questions/${id}`).then((r) => r.data),
 

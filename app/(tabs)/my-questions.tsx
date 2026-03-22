@@ -7,18 +7,20 @@ import {
   RefreshControl,
   Image,
 } from "react-native";
-import { useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { type Question } from "../../services/questionApi";
-import { useMyQuestions } from "../../hooks/useQuestions";
+import { useMyQuestions, useMyAnswers } from "../../hooks/useQuestions";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { timeAgo } from "../../utils/dateUtils";
 import { Colors } from "../../constants/colors";
 
 const currentYear = new Date().getFullYear();
+
+type Tab = "questions" | "answers";
 
 const GENDER_LABEL: Record<string, string> = {
   MALE: "남성",
@@ -30,18 +32,15 @@ export default function MyQuestionsScreen() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const fetchProfile = useAuthStore((s) => s.fetchProfile);
+  const [activeTab, setActiveTab] = useState<Tab>("questions");
 
-  const {
-    data,
-    isLoading,
-    isRefetching,
-    isError,
-    refetch,
-    fetchNextPage,
-    hasNextPage,
-  } = useMyQuestions();
+  const questionsQuery = useMyQuestions();
+  const answersQuery = useMyAnswers();
 
-  const questions = useMemo(
+  const activeQuery = activeTab === "questions" ? questionsQuery : answersQuery;
+  const { data, isLoading, isRefetching, isError, refetch, fetchNextPage, hasNextPage } = activeQuery;
+
+  const items = useMemo(
     () => data?.pages.flatMap((p) => p.questions) ?? [],
     [data]
   );
@@ -126,14 +125,49 @@ export default function MyQuestionsScreen() {
           </Text>
         </TouchableOpacity>
 
-        <View className="border-t border-skin-border pt-4">
-          <Text className="text-base font-semibold text-skin-text">
-            내 질문
-          </Text>
+        <View className="border-t border-skin-border pt-2">
+          <View className="flex-row">
+            <TouchableOpacity
+              className="flex-1 items-center py-2"
+              onPress={() => setActiveTab("questions")}
+              activeOpacity={0.7}
+            >
+              <Text
+                className={`text-base font-semibold ${
+                  activeTab === "questions"
+                    ? "text-skin-primary"
+                    : "text-skin-text-secondary"
+                }`}
+              >
+                내 질문
+              </Text>
+              {activeTab === "questions" && (
+                <View className="absolute bottom-0 left-4 right-4 h-0.5 bg-skin-primary rounded-full" />
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="flex-1 items-center py-2"
+              onPress={() => setActiveTab("answers")}
+              activeOpacity={0.7}
+            >
+              <Text
+                className={`text-base font-semibold ${
+                  activeTab === "answers"
+                    ? "text-skin-primary"
+                    : "text-skin-text-secondary"
+                }`}
+              >
+                내 도움
+              </Text>
+              {activeTab === "answers" && (
+                <View className="absolute bottom-0 left-4 right-4 h-0.5 bg-skin-primary rounded-full" />
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     ),
-    [user, subtitle, router]
+    [user, subtitle, router, activeTab]
   );
 
   const renderQuestion = useCallback(({ item }: { item: Question }) => (
@@ -171,6 +205,45 @@ export default function MyQuestionsScreen() {
     </TouchableOpacity>
   ), [router]);
 
+  const emptyComponent = useMemo(() => {
+    if (isError) {
+      return (
+        <View className="items-center py-20">
+          <Text className="text-skin-text-secondary text-base mb-3">
+            불러오기에 실패했어요
+          </Text>
+          <TouchableOpacity onPress={() => refetch()}>
+            <Text className="text-skin-primary text-sm font-medium">
+              다시 시도
+            </Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+    if (activeTab === "questions") {
+      return (
+        <View className="items-center py-20">
+          <Text className="text-skin-text-secondary text-base">
+            아직 질문이 없어요
+          </Text>
+          <Text className="text-skin-text-secondary text-sm mt-1">
+            홈에서 피부 고민을 질문해보세요!
+          </Text>
+        </View>
+      );
+    }
+    return (
+      <View className="items-center py-20">
+        <Text className="text-skin-text-secondary text-base">
+          아직 답변한 질문이 없어요
+        </Text>
+        <Text className="text-skin-text-secondary text-sm mt-1">
+          도와주기 탭에서 다른 사람의 고민에 답변해보세요!
+        </Text>
+      </View>
+    );
+  }, [isError, activeTab, refetch]);
+
   return (
     <SafeAreaView className="flex-1 bg-skin-bg">
       <View className="px-5 pt-4 mb-2 flex-row items-center justify-end">
@@ -188,7 +261,7 @@ export default function MyQuestionsScreen() {
         </View>
       ) : (
         <FlatList
-          data={questions}
+          data={items}
           renderItem={renderQuestion}
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 20 }}
@@ -204,29 +277,7 @@ export default function MyQuestionsScreen() {
             if (hasNextPage) fetchNextPage();
           }}
           onEndReachedThreshold={0.5}
-          ListEmptyComponent={
-            isError ? (
-              <View className="items-center py-20">
-                <Text className="text-skin-text-secondary text-base mb-3">
-                  불러오기에 실패했어요
-                </Text>
-                <TouchableOpacity onPress={() => refetch()}>
-                  <Text className="text-skin-primary text-sm font-medium">
-                    다시 시도
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <View className="items-center py-20">
-                <Text className="text-skin-text-secondary text-base">
-                  아직 질문이 없어요
-                </Text>
-                <Text className="text-skin-text-secondary text-sm mt-1">
-                  홈에서 피부 고민을 질문해보세요!
-                </Text>
-              </View>
-            )
-          }
+          ListEmptyComponent={emptyComponent}
         />
       )}
     </SafeAreaView>

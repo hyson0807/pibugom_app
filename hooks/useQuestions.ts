@@ -36,6 +36,16 @@ export function useMyQuestions() {
   });
 }
 
+export function useMyAnswers() {
+  return useInfiniteQuery<QuestionsResponse>({
+    queryKey: ["myAnswers"],
+    queryFn: ({ pageParam }) =>
+      questionApi.getMyAnswers({ page: pageParam as number, limit: 20 }),
+    initialPageParam: 1,
+    getNextPageParam,
+  });
+}
+
 export function useQuestion(id: string) {
   return useQuery({
     queryKey: ["question", id],
