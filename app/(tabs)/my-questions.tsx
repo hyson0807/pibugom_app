@@ -12,11 +12,11 @@ import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { type Question } from "../../services/questionApi";
-import { useMyQuestions, useMyAnswers } from "../../hooks/useQuestions";
-import { useAuthStore } from "../../stores/useAuthStore";
-import { timeAgo } from "../../utils/dateUtils";
-import { Colors } from "../../constants/colors";
+import { type Question } from "@/services/questionApi";
+import { useMyQuestions, useMyAnswers } from "@/hooks/useQuestions";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { timeAgo } from "@/utils/dateUtils";
+import { Colors } from "@/constants/colors";
 
 const currentYear = new Date().getFullYear();
 
@@ -251,7 +251,7 @@ export default function MyQuestionsScreen() {
           onPress={() => router.push("/settings")}
           hitSlop={8}
         >
-          <Ionicons name="menu-outline" size={28} color={Colors.skinText} />
+          <Ionicons name="menu-outline" size={28} color={Colors.skinPrimary} />
         </TouchableOpacity>
       </View>
 

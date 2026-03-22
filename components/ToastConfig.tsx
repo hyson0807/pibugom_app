@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Colors } from "../constants/colors";
+import { Colors } from "@/constants/colors";
 import type { ToastConfig } from "react-native-toast-message";
 
 const ICON_MAP = {

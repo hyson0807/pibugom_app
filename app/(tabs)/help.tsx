@@ -10,11 +10,11 @@ import {
 import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { type Question } from "../../services/questionApi";
-import { useQuestions } from "../../hooks/useQuestions";
-import { ALL_CATEGORIES } from "../../constants/skinCategories";
-import { timeAgo } from "../../utils/dateUtils";
-import { Colors } from "../../constants/colors";
+import { type Question } from "@/services/questionApi";
+import { useQuestions } from "@/hooks/useQuestions";
+import { ALL_CATEGORIES } from "@/constants/skinCategories";
+import { timeAgo } from "@/utils/dateUtils";
+import { Colors } from "@/constants/colors";
 
 export default function HelpScreen() {
   const router = useRouter();

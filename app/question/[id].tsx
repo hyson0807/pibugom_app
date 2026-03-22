@@ -14,19 +14,19 @@ import {
 import { useState, useCallback, useMemo, memo } from "react";
 import { useLocalSearchParams, useRouter, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { type Answer } from "../../services/questionApi";
+import { type Answer } from "@/services/questionApi";
 import {
   useQuestion,
   useCreateAnswer,
   useDeleteQuestion,
   useDeleteAnswer,
-} from "../../hooks/useQuestions";
-import { useAuthStore } from "../../stores/useAuthStore";
-import QuestionActionSheet from "../../components/QuestionActionSheet";
-import AnswerActionSheet from "../../components/AnswerActionSheet";
-import { showToast } from "../../utils/toast";
-import { timeAgo } from "../../utils/dateUtils";
-import { Colors } from "../../constants/colors";
+} from "@/hooks/useQuestions";
+import { useAuthStore } from "@/stores/useAuthStore";
+import QuestionActionSheet from "@/components/QuestionActionSheet";
+import AnswerActionSheet from "@/components/AnswerActionSheet";
+import { showToast } from "@/utils/toast";
+import { timeAgo } from "@/utils/dateUtils";
+import { Colors } from "@/constants/colors";
 
 type FlatAnswer = Answer & { depth: number };
 

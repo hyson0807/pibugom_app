@@ -1,19 +1,19 @@
-import "../global.css";
+import "@/global.css";
 import { useEffect } from "react";
 import { Stack, useSegments, useRouter } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Toast from "react-native-toast-message";
-import { toastConfig } from "../components/ToastConfig";
-import { useAuthStore } from "../stores/useAuthStore";
+import { toastConfig } from "@/components/ToastConfig";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { View, ActivityIndicator } from "react-native";
-import { Colors } from "../constants/colors";
+import { Colors } from "@/constants/colors";
 
 const AUTHENTICATED_SEGMENTS = new Set(["(tabs)", "settings", "question", "edit-profile"]);
 
 const detailHeaderOptions = {
   headerShown: true,
-  headerBackTitle: "뒤로",
+  headerBackButtonDisplayMode: "minimal" as const,
   headerTintColor: Colors.skinPrimary,
   headerStyle: { backgroundColor: Colors.skinBg },
   headerTitleStyle: { fontSize: 15 },

@@ -1,10 +1,30 @@
-import { View, Text, TouchableOpacity, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  ScrollView,
+  Linking,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useAuthStore } from "../stores/useAuthStore";
-import { useDeleteAccount } from "../hooks/useUser";
-import { showToast } from "../utils/toast";
+import { Ionicons } from "@expo/vector-icons";
+import Constants from "expo-constants";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { useDeleteAccount } from "@/hooks/useUser";
+import { showToast } from "@/utils/toast";
+import { Colors } from "@/constants/colors";
+
+const APP_VERSION = Constants.expoConfig?.version ?? "1.0.0";
+
+// TODO: 실제 URL로 교체
+const INFO_LINKS = [
+  { label: "서비스 이용약관", url: "https://example.com/terms" },
+  { label: "개인정보처리방침", url: "https://example.com/privacy" },
+  { label: "오픈소스 라이선스", url: "https://example.com/licenses" },
+];
 
 export default function SettingsScreen() {
+  const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const deleteAccount = useDeleteAccount();
 
@@ -38,26 +58,78 @@ export default function SettingsScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-skin-bg" edges={["bottom"]}>
-      <View className="flex-1 px-5 pt-6">
-        <TouchableOpacity
-          onPress={handleLogout}
-          className="bg-skin-surface rounded-2xl p-4 mb-3 border border-skin-border"
-          activeOpacity={0.7}
-        >
-          <Text className="text-base font-medium text-skin-text">로그아웃</Text>
-        </TouchableOpacity>
+      <ScrollView className="flex-1 px-5">
+        {/* 계정 정보 */}
+        <View className="pt-6 pb-2">
+          <Text className="text-lg font-bold text-skin-text mb-2">계정</Text>
+          <View className="flex-row items-center justify-between py-4">
+            <Text className="text-base text-skin-text">이메일</Text>
+            <Text className="text-base text-skin-text-secondary">
+              {user?.email ?? "-"}
+            </Text>
+          </View>
+        </View>
 
-        <TouchableOpacity
-          onPress={handleDeleteAccount}
-          disabled={deleteAccount.isPending}
-          className="bg-skin-surface rounded-2xl p-4 mb-3 border border-skin-border"
-          activeOpacity={0.7}
-        >
-          <Text className="text-base font-medium text-skin-error">
-            {deleteAccount.isPending ? "처리 중..." : "회원탈퇴"}
+        <View className="border-t border-skin-border" />
+
+        {/* 이용 안내 */}
+        <View className="pt-6 pb-2">
+          <Text className="text-lg font-bold text-skin-text mb-2">
+            이용 안내
           </Text>
-        </TouchableOpacity>
-      </View>
+
+          {INFO_LINKS.map(({ label, url }) => (
+            <TouchableOpacity
+              key={url}
+              className="flex-row items-center justify-between py-4"
+              onPress={() => Linking.openURL(url).catch(() => showToast("error", "링크를 열 수 없어요."))}
+              activeOpacity={0.7}
+            >
+              <Text className="text-base text-skin-text">{label}</Text>
+              <Ionicons
+                name="chevron-forward"
+                size={20}
+                color={Colors.skinTextSecondary}
+              />
+            </TouchableOpacity>
+          ))}
+
+          <View className="flex-row items-center justify-between py-4">
+            <Text className="text-base text-skin-text">앱 버전</Text>
+            <Text className="text-base text-skin-text-secondary">
+              {APP_VERSION}
+            </Text>
+          </View>
+        </View>
+
+        <View className="border-t border-skin-border" />
+
+        {/* 계정 관리 */}
+        <View className="pt-6 pb-10">
+          <Text className="text-lg font-bold text-skin-text mb-2">
+            계정 관리
+          </Text>
+
+          <TouchableOpacity
+            className="py-4"
+            onPress={handleLogout}
+            activeOpacity={0.7}
+          >
+            <Text className="text-base text-skin-text">로그아웃</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="py-4"
+            onPress={handleDeleteAccount}
+            disabled={deleteAccount.isPending}
+            activeOpacity={0.7}
+          >
+            <Text className="text-base text-skin-error">
+              {deleteAccount.isPending ? "처리 중..." : "회원탈퇴"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

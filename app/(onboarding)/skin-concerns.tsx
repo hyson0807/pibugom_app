@@ -2,11 +2,11 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { useOnboardingStore } from "../../stores/useOnboardingStore";
-import { useAuthStore } from "../../stores/useAuthStore";
-import { api } from "../../services/api";
-import { SKIN_CATEGORIES } from "../../constants/skinCategories";
-import { showToast } from "../../utils/toast";
+import { useOnboardingStore } from "@/stores/useOnboardingStore";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { api } from "@/services/api";
+import { SKIN_CATEGORIES } from "@/constants/skinCategories";
+import { showToast } from "@/utils/toast";
 
 export default function SkinConcernsScreen() {
   const router = useRouter();

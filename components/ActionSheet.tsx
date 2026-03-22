@@ -6,7 +6,7 @@ import {
   Pressable,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Colors } from "../constants/colors";
+import { Colors } from "@/constants/colors";
 
 export interface ActionSheetItem {
   icon: keyof typeof Ionicons.glyphMap;

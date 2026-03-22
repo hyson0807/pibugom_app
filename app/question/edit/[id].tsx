@@ -10,10 +10,10 @@ import {
 } from "react-native";
 import { useState, useEffect, useRef } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useQuestion, useUpdateQuestion } from "../../../hooks/useQuestions";
-import { showToast } from "../../../utils/toast";
-import { SKIN_CATEGORIES } from "../../../constants/skinCategories";
-import { Colors } from "../../../constants/colors";
+import { useQuestion, useUpdateQuestion } from "@/hooks/useQuestions";
+import { showToast } from "@/utils/toast";
+import { SKIN_CATEGORIES } from "@/constants/skinCategories";
+import { Colors } from "@/constants/colors";
 
 export default function EditQuestionScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();

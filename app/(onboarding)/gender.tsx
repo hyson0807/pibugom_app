@@ -1,8 +1,8 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useOnboardingStore } from "../../stores/useOnboardingStore";
-import { Colors } from "../../constants/colors";
+import { useOnboardingStore } from "@/stores/useOnboardingStore";
+import { Colors } from "@/constants/colors";
 
 const GENDERS = [
   { value: "MALE", label: "남성", icon: "male" as const },

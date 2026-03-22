@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useAuthStore } from "../stores/useAuthStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";

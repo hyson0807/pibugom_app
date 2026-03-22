@@ -13,13 +13,13 @@ import {
 import { useRouter, useNavigation } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuthStore } from "../stores/useAuthStore";
-import { useUpdateProfile } from "../hooks/useUser";
-import { showToast } from "../utils/toast";
-import { Colors } from "../constants/colors";
-import { SKIN_CATEGORIES } from "../constants/skinCategories";
-import WheelPicker, { ITEM_HEIGHT, VISIBLE_ITEMS } from "../components/WheelPicker";
-import { pickAndCompressImage } from "../utils/imageUpload";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { useUpdateProfile } from "@/hooks/useUser";
+import { showToast } from "@/utils/toast";
+import { Colors } from "@/constants/colors";
+import { SKIN_CATEGORIES } from "@/constants/skinCategories";
+import WheelPicker, { ITEM_HEIGHT, VISIBLE_ITEMS } from "@/components/WheelPicker";
+import { pickAndCompressImage } from "@/utils/imageUpload";
 
 const GENDERS = [
   { value: "MALE", label: "남성", icon: "male" as const },

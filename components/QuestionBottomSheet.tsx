@@ -12,10 +12,10 @@ import {
 } from "react-native";
 import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { useCreateQuestion } from "../hooks/useQuestions";
-import { showToast } from "../utils/toast";
-import { SKIN_CATEGORIES } from "../constants/skinCategories";
-import { Colors } from "../constants/colors";
+import { useCreateQuestion } from "@/hooks/useQuestions";
+import { showToast } from "@/utils/toast";
+import { SKIN_CATEGORIES } from "@/constants/skinCategories";
+import { Colors } from "@/constants/colors";
 
 interface Props {
   visible: boolean;

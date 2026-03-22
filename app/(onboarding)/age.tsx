@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
-import { useOnboardingStore } from "../../stores/useOnboardingStore";
-import WheelPicker, { ITEM_HEIGHT, VISIBLE_ITEMS } from "../../components/WheelPicker";
+import { useOnboardingStore } from "@/stores/useOnboardingStore";
+import WheelPicker, { ITEM_HEIGHT, VISIBLE_ITEMS } from "@/components/WheelPicker";
 
 const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
 const currentYear = new Date().getFullYear();

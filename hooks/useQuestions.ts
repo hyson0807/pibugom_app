@@ -7,7 +7,7 @@ import {
 import {
   questionApi,
   type QuestionsResponse,
-} from "../services/questionApi";
+} from "@/services/questionApi";
 
 const getNextPageParam = (lastPage: QuestionsResponse) =>
   lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined;

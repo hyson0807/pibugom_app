@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import ActionSheet, { type ActionSheetItem } from "./ActionSheet";
-import { Colors } from "../constants/colors";
+import { Colors } from "@/constants/colors";
 
 interface Props {
   visible: boolean;

@@ -5,10 +5,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import * as AuthSession from "expo-auth-session/providers/google";
 import * as WebBrowser from "expo-web-browser";
-import { useAuthStore } from "../../stores/useAuthStore";
-import { api } from "../../services/api";
-import { Colors } from "../../constants/colors";
-import { showToast } from "../../utils/toast";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { api } from "@/services/api";
+import { Colors } from "@/constants/colors";
+import { showToast } from "@/utils/toast";
 
 WebBrowser.maybeCompleteAuthSession();
 
