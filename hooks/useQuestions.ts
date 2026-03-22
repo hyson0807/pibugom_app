@@ -10,6 +10,7 @@ import {
   type QuestionsResponse,
 } from "@/services/questionApi";
 import type { CompressedImage } from "@/utils/imageUpload";
+import { tryRequestReview } from "@/utils/reviewService";
 
 export const getNextPageParam = (lastPage: { page: number; totalPages: number }) =>
   lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined;
@@ -105,6 +106,7 @@ export function useCreateQuestion() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["questions"] });
       queryClient.invalidateQueries({ queryKey: ["myQuestions"] });
+      tryRequestReview();
     },
   });
 }
@@ -165,6 +167,7 @@ export function useCreateAnswer() {
       queryClient.invalidateQueries({ queryKey: ["questions"] });
       queryClient.invalidateQueries({ queryKey: ["myQuestions"] });
       queryClient.invalidateQueries({ queryKey: ["myAnswers"] });
+      tryRequestReview();
     },
   });
 }

@@ -108,9 +108,16 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async () => {
+    const token = useAuthStore.getState().accessToken;
+    // Use plain axios to avoid response interceptor loop
     try {
-      const { api } = await import("../services/api");
-      await api.post("/auth/logout");
+      const { default: axios } = await import("axios");
+      const baseURL =
+        process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
+      await axios.post(`${baseURL}/auth/logout`, null, {
+        headers: { Authorization: `Bearer ${token}` },
+        timeout: 5_000,
+      });
     } catch {
       // best-effort: clear local state even if server call fails
     }
@@ -125,9 +132,12 @@ export const useAuthStore = create<AuthState>((set) => ({
     } catch {
       // best-effort
     }
-    await SecureStore.deleteItemAsync("accessToken");
-    await SecureStore.deleteItemAsync("refreshToken");
-    await SecureStore.deleteItemAsync("isOnboarded");
+    await Promise.all([
+      SecureStore.deleteItemAsync("accessToken"),
+      SecureStore.deleteItemAsync("refreshToken"),
+      SecureStore.deleteItemAsync("isOnboarded"),
+      SecureStore.deleteItemAsync("notificationsDisabledByUser"),
+    ]);
     set({
       accessToken: null,
       refreshToken: null,

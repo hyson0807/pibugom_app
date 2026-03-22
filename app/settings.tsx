@@ -5,6 +5,7 @@ import {
   Alert,
   ScrollView,
   Linking,
+  Switch,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -15,6 +16,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { useDeleteAccount } from "@/hooks/useUser";
 import { showToast } from "@/utils/toast";
 import { Colors } from "@/constants/colors";
+import { useNotificationSettings } from "@/hooks/useNotificationSettings";
 
 const APP_VERSION = Constants.expoConfig?.version ?? "1.0.0";
 
@@ -31,6 +33,7 @@ export default function SettingsScreen() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const deleteAccount = useDeleteAccount();
+  const { isEnabled, osPermission, isLoading: notifLoading, toggleNotifications } = useNotificationSettings();
 
   const handleLogout = () => {
     Alert.alert("로그아웃", "정말 로그아웃하시겠어요?", [
@@ -79,6 +82,46 @@ export default function SettingsScreen() {
               {user?.email ?? "-"}
             </Text>
           </View>
+        </View>
+
+        <View className="border-t border-skin-border" />
+
+        {/* 알림 설정 */}
+        <View className="pt-6 pb-2">
+          <Text className="text-lg font-bold text-skin-text mb-2">
+            알림 설정
+          </Text>
+
+          <View className="flex-row items-center justify-between py-4">
+            <Text className="text-base text-skin-text">푸시 알림</Text>
+            <Switch
+              value={isEnabled}
+              onValueChange={toggleNotifications}
+              disabled={notifLoading}
+              trackColor={{ false: Colors.skinBorder, true: Colors.skinPrimary }}
+              thumbColor="#FFFFFF"
+            />
+          </View>
+
+          {osPermission === "denied" && (
+            <TouchableOpacity
+              className="flex-row items-center justify-between py-4"
+              onPress={() => Linking.openSettings()}
+              activeOpacity={0.7}
+            >
+              <View className="flex-1 mr-2">
+                <Text className="text-base text-skin-text">시스템 알림 설정</Text>
+                <Text className="text-sm text-skin-text-secondary">
+                  알림이 꺼져 있어요. 설정에서 켜주세요.
+                </Text>
+              </View>
+              <Ionicons
+                name="chevron-forward"
+                size={20}
+                color={Colors.skinTextSecondary}
+              />
+            </TouchableOpacity>
+          )}
         </View>
 
         <View className="border-t border-skin-border" />

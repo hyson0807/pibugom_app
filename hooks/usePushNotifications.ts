@@ -18,7 +18,7 @@ Notifications.setNotificationHandler({
   }),
 });
 
-async function registerForPushNotifications(): Promise<string | null> {
+export async function registerForPushNotifications(): Promise<string | null> {
   if (!Device.isDevice) return null;
 
   const { status: existingStatus } =
@@ -58,7 +58,12 @@ export function usePushNotifications() {
 
     let cancelled = false;
 
-    registerForPushNotifications().then(async (token) => {
+    (async () => {
+      // Skip if user explicitly disabled notifications in settings
+      const disabledByUser = await SecureStore.getItemAsync("notificationsDisabledByUser");
+      if (disabledByUser === "true" || cancelled) return;
+
+      const token = await registerForPushNotifications();
       if (cancelled || !token) return;
       tokenRef.current = token;
       SecureStore.setItemAsync("pushToken", token).catch(() => {});
@@ -73,7 +78,7 @@ export function usePushNotifications() {
           await new Promise((r) => setTimeout(r, 1000 * 2 ** attempt));
         }
       }
-    });
+    })();
 
     return () => {
       cancelled = true;
