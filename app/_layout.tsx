@@ -7,11 +7,12 @@ import Toast from "react-native-toast-message";
 import { toastConfig } from "@/components/ToastConfig";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useAppUpdates } from "@/hooks/useAppUpdates";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { UpdateLoadingScreen } from "@/components/UpdateLoadingScreen";
 import { View, ActivityIndicator } from "react-native";
 import { Colors } from "@/constants/colors";
 
-const AUTHENTICATED_SEGMENTS = new Set(["(tabs)", "settings", "question", "edit-profile", "blocked-users", "search"]);
+const AUTHENTICATED_SEGMENTS = new Set(["(tabs)", "settings", "question", "edit-profile", "blocked-users", "search", "notifications"]);
 
 const detailHeaderOptions = {
   headerShown: true,
@@ -37,6 +38,8 @@ function AppContent() {
   const initialize = useAuthStore((s) => s.initialize);
   const rootSegment = useSegments()[0];
   const router = useRouter();
+
+  usePushNotifications();
 
   useEffect(() => {
     initialize();
@@ -94,6 +97,10 @@ function AppContent() {
         <Stack.Screen
           name="blocked-users"
           options={{ ...detailHeaderOptions, headerTitle: "차단 목록" }}
+        />
+        <Stack.Screen
+          name="notifications"
+          options={{ ...detailHeaderOptions, headerTitle: "알림" }}
         />
         <Stack.Screen
           name="search"

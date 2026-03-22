@@ -14,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { type Question } from "@/services/questionApi";
 import { useMyQuestions, useMyAnswers, useMyBookmarks } from "@/hooks/useQuestions";
+import { useUnreadCount } from "@/hooks/useNotifications";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { timeAgo } from "@/utils/dateUtils";
 import { Colors } from "@/constants/colors";
@@ -45,6 +46,9 @@ export default function MyQuestionsScreen() {
   const user = useAuthStore((s) => s.user);
   const fetchProfile = useAuthStore((s) => s.fetchProfile);
   const [activeTab, setActiveTab] = useState<Tab>("questions");
+
+  const { data: unreadData } = useUnreadCount();
+  const unreadCount = unreadData?.count ?? 0;
 
   const questionsQuery = useMyQuestions();
   const answersQuery = useMyAnswers();
@@ -234,7 +238,18 @@ export default function MyQuestionsScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-skin-bg">
-      <View className="px-5 pt-4 mb-2 flex-row items-center justify-end">
+      <View className="px-5 pt-4 mb-2 flex-row items-center justify-between">
+        <TouchableOpacity
+          onPress={() => router.push("/notifications")}
+          hitSlop={8}
+        >
+          <View>
+            <Ionicons name="notifications-outline" size={28} color={Colors.skinPrimary} />
+            {unreadCount > 0 && (
+              <View className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full" />
+            )}
+          </View>
+        </TouchableOpacity>
         <TouchableOpacity
           onPress={() => router.push("/settings")}
           hitSlop={8}

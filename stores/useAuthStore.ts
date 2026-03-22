@@ -114,6 +114,17 @@ export const useAuthStore = create<AuthState>((set) => ({
     } catch {
       // best-effort: clear local state even if server call fails
     }
+    // Remove push token from server
+    try {
+      const pushToken = await SecureStore.getItemAsync("pushToken");
+      if (pushToken) {
+        const { notificationApi } = await import("../services/notificationApi");
+        await notificationApi.removePushToken(pushToken);
+        await SecureStore.deleteItemAsync("pushToken");
+      }
+    } catch {
+      // best-effort
+    }
     await SecureStore.deleteItemAsync("accessToken");
     await SecureStore.deleteItemAsync("refreshToken");
     await SecureStore.deleteItemAsync("isOnboarded");

@@ -11,7 +11,7 @@ import {
 } from "@/services/questionApi";
 import type { CompressedImage } from "@/utils/imageUpload";
 
-export const getNextPageParam = (lastPage: QuestionsResponse) =>
+export const getNextPageParam = (lastPage: { page: number; totalPages: number }) =>
   lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined;
 
 export function useQuestions(category: string) {
