@@ -97,7 +97,7 @@ export default function WelcomeScreen() {
 
   return (
     <LinearGradient
-      colors={[Colors.skinGradientStart, Colors.skinPrimary, Colors.skinGradientEnd]}
+      colors={["#0A0A0A", "#1A1A1A", "#0A0A0A"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.container}
@@ -114,14 +114,14 @@ export default function WelcomeScreen() {
           disabled={!request}
           activeOpacity={0.8}
         >
-          <Ionicons name="logo-google" size={20} color={Colors.skinTextDark} />
+          <Ionicons name="logo-google" size={20} color="white" />
           <Text style={styles.googleButtonText}>Google로 시작하기</Text>
         </TouchableOpacity>
 
         {Platform.OS === "ios" && (
           <AppleAuthentication.AppleAuthenticationButton
             buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
-            buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
+            buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
             cornerRadius={9999}
             style={styles.appleButton}
             onPress={handleAppleSignIn}
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 48,
     fontWeight: "900",
-    color: "white",
+    color: Colors.skinPrimary,
     letterSpacing: -1,
   },
   subtitle: {
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     paddingBottom: 48,
   },
   googleButton: {
-    backgroundColor: "white",
+    backgroundColor: Colors.skinPrimary,
     borderRadius: 9999,
     paddingVertical: 16,
     flexDirection: "row",
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
   googleButtonText: {
     fontSize: 18,
     fontWeight: "600",
-    color: Colors.skinTextDark,
+    color: "white",
     marginLeft: 12,
   },
   appleButton: {
