@@ -58,11 +58,21 @@ export function usePushNotifications() {
 
     let cancelled = false;
 
-    registerForPushNotifications().then((token) => {
+    registerForPushNotifications().then(async (token) => {
       if (cancelled || !token) return;
       tokenRef.current = token;
       SecureStore.setItemAsync("pushToken", token).catch(() => {});
-      notificationApi.registerPushToken(token).catch(() => {});
+
+      for (let attempt = 0; attempt < 3; attempt++) {
+        if (cancelled) break;
+        try {
+          await notificationApi.registerPushToken(token);
+          break;
+        } catch {
+          if (cancelled || attempt === 2) break;
+          await new Promise((r) => setTimeout(r, 1000 * 2 ** attempt));
+        }
+      }
     });
 
     return () => {
