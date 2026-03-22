@@ -21,9 +21,7 @@ export const tryRequestReview = async (): Promise<void> => {
     }
 
     await StoreReview.requestReview();
-
-    console.log(`[ReviewService] Review requested at count: ${count}`);
-  } catch (error) {
-    console.log('[ReviewService] Error requesting review:', error);
+  } catch {
+    // silent: review request is best-effort
   }
 };
