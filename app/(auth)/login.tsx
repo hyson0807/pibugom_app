@@ -7,6 +7,7 @@ import * as AuthSession from "expo-auth-session/providers/google";
 import * as WebBrowser from "expo-web-browser";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { api } from "../../services/api";
+import { Colors } from "../../constants/colors";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -54,7 +55,7 @@ export default function WelcomeScreen() {
 
   return (
     <LinearGradient
-      colors={["#FF9A8B", "#E87461", "#FF6B6B"]}
+      colors={[Colors.skinGradientStart, Colors.skinPrimary, Colors.skinGradientEnd]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.container}
@@ -71,7 +72,7 @@ export default function WelcomeScreen() {
           disabled={!request}
           activeOpacity={0.8}
         >
-          <Ionicons name="logo-google" size={20} color="#3D3D3D" />
+          <Ionicons name="logo-google" size={20} color={Colors.skinTextDark} />
           <Text style={styles.googleButtonText}>Google로 시작하기</Text>
         </TouchableOpacity>
 
@@ -119,7 +120,7 @@ const styles = StyleSheet.create({
   googleButtonText: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#3D3D3D",
+    color: Colors.skinTextDark,
     marginLeft: 12,
   },
   termsText: {

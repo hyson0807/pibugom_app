@@ -1,7 +1,6 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { useRef, useCallback } from "react";
-import { Ionicons } from "@expo/vector-icons";
 import { useOnboardingStore } from "../../stores/useOnboardingStore";
 
 const ITEM_HEIGHT = 50;
@@ -107,7 +106,7 @@ export default function AgeScreen() {
   const age = currentYear - birthYear;
 
   return (
-    <View className="flex-1 bg-skin-dark px-6 pt-16">
+    <View className="flex-1 bg-skin-bg px-6 pt-16">
       {/* Header */}
       <View className="mb-12">
         <Text className="text-3xl font-bold text-white">

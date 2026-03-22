@@ -9,8 +9,10 @@ import {
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 import { questionApi, type Question } from "../../services/questionApi";
 import { timeAgo } from "../../utils/dateUtils";
+import { Colors } from "../../constants/colors";
 
 export default function MyQuestionsScreen() {
   const router = useRouter();
@@ -19,9 +21,11 @@ export default function MyQuestionsScreen() {
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
   const fetchQuestions = useCallback(async (p = 1, refresh = false) => {
     try {
+      setHasError(false);
       const data = await questionApi.getMy({ page: p, limit: 20 });
       if (refresh || p === 1) {
         setQuestions(data.questions);
@@ -31,7 +35,7 @@ export default function MyQuestionsScreen() {
       setTotalPages(data.totalPages);
       setPage(p);
     } catch {
-      // silently fail
+      setHasError(true);
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -87,13 +91,19 @@ export default function MyQuestionsScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-skin-bg">
-      <View className="px-5 pt-4 mb-2">
-        <Text className="text-2xl font-bold text-skin-text">내 질문</Text>
+      <View className="px-5 pt-4 mb-2 flex-row items-center justify-between">
+        <Text className="text-2xl font-bold text-skin-text">프로필</Text>
+        <TouchableOpacity
+          onPress={() => router.push("/settings")}
+          hitSlop={8}
+        >
+          <Ionicons name="menu-outline" size={28} color={Colors.skinText} />
+        </TouchableOpacity>
       </View>
 
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#E87461" />
+          <ActivityIndicator size="large" color={Colors.skinPrimary} />
         </View>
       ) : (
         <FlatList
@@ -105,20 +115,33 @@ export default function MyQuestionsScreen() {
             <RefreshControl
               refreshing={isRefreshing}
               onRefresh={handleRefresh}
-              tintColor="#E87461"
+              tintColor={Colors.skinPrimary}
             />
           }
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
           ListEmptyComponent={
-            <View className="items-center py-20">
-              <Text className="text-skin-text-secondary text-base">
-                아직 질문이 없어요
-              </Text>
-              <Text className="text-skin-text-secondary text-sm mt-1">
-                홈에서 피부 고민을 질문해보세요!
-              </Text>
-            </View>
+            hasError ? (
+              <View className="items-center py-20">
+                <Text className="text-skin-text-secondary text-base mb-3">
+                  불러오기에 실패했어요
+                </Text>
+                <TouchableOpacity onPress={() => fetchQuestions(1, true)}>
+                  <Text className="text-skin-primary text-sm font-medium">
+                    다시 시도
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View className="items-center py-20">
+                <Text className="text-skin-text-secondary text-base">
+                  아직 질문이 없어요
+                </Text>
+                <Text className="text-skin-text-secondary text-sm mt-1">
+                  홈에서 피부 고민을 질문해보세요!
+                </Text>
+              </View>
+            )
           }
         />
       )}

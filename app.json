@@ -15,10 +15,11 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#FFF5F0",
-        "foregroundImage": "./assets/adaptive-icon.png"
+        "foregroundImage": "./assets/android-icon-foreground.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.hyson.pibugom"
     },
     "web": {
       "output": "static",

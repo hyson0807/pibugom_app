@@ -12,6 +12,7 @@ import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { questionApi } from "../../services/questionApi";
 import { SKIN_CATEGORIES } from "../../constants/skinCategories";
+import { Colors } from "../../constants/colors";
 
 export default function HomeScreen() {
   const [category, setCategory] = useState("");
@@ -93,7 +94,7 @@ export default function HomeScreen() {
           <TextInput
             className="bg-skin-surface border border-skin-border rounded-xl px-4 py-3 text-skin-text mb-4"
             placeholder="어떤 고민이 있나요?"
-            placeholderTextColor="#C4C4C4"
+            placeholderTextColor={Colors.skinPlaceholder}
             value={title}
             onChangeText={setTitle}
           />
@@ -105,7 +106,7 @@ export default function HomeScreen() {
           <TextInput
             className="bg-skin-surface border border-skin-border rounded-xl px-4 py-3 text-skin-text mb-6"
             placeholder="피부 고민을 자세히 적어주세요..."
-            placeholderTextColor="#C4C4C4"
+            placeholderTextColor={Colors.skinPlaceholder}
             value={content}
             onChangeText={setContent}
             multiline

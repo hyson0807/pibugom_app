@@ -1,14 +1,15 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { Colors } from "../../constants/colors";
 
 export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#E87461",
-        tabBarInactiveTintColor: "#C4C4C4",
-        tabBarStyle: { backgroundColor: "#FFF0E8" },
+        tabBarActiveTintColor: Colors.skinPrimary,
+        tabBarInactiveTintColor: Colors.skinInactive,
+        tabBarStyle: { backgroundColor: Colors.skinTab },
       }}
     >
       <Tabs.Screen
@@ -32,10 +33,10 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="my-questions"
         options={{
-          title: "내 질문",
+          title: "프로필",
           tabBarIcon: ({ color, size }) => (
             <Ionicons
-              name="chatbox-ellipses-outline"
+              name="person-outline"
               size={size}
               color={color}
             />

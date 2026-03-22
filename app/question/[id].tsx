@@ -18,6 +18,7 @@ import {
   type Answer,
 } from "../../services/questionApi";
 import { timeAgo } from "../../utils/dateUtils";
+import { Colors } from "../../constants/colors";
 
 export default function QuestionDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -63,7 +64,7 @@ export default function QuestionDetailScreen() {
   if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center bg-skin-bg">
-        <ActivityIndicator size="large" color="#E87461" />
+        <ActivityIndicator size="large" color={Colors.skinPrimary} />
       </View>
     );
   }
@@ -152,7 +153,7 @@ export default function QuestionDetailScreen() {
         <TextInput
           className="flex-1 bg-skin-bg rounded-full px-4 py-2 text-skin-text mr-2 border border-skin-border"
           placeholder="답변을 입력하세요..."
-          placeholderTextColor="#C4C4C4"
+          placeholderTextColor={Colors.skinPlaceholder}
           value={answerText}
           onChangeText={setAnswerText}
           multiline

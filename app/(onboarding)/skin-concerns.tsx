@@ -36,7 +36,7 @@ export default function SkinConcernsScreen() {
   };
 
   return (
-    <View className="flex-1 bg-skin-dark px-6 pt-16">
+    <View className="flex-1 bg-skin-bg px-6 pt-16">
       {/* Back */}
       <TouchableOpacity onPress={() => router.back()} className="mb-4">
         <Ionicons name="chevron-back" size={28} color="white" />
@@ -60,7 +60,7 @@ export default function SkinConcernsScreen() {
               className={`rounded-full px-5 py-3 ${
                 isSelected
                   ? "bg-skin-primary"
-                  : "bg-skin-dark-surface border border-skin-dark-border"
+                  : "bg-skin-surface border border-skin-border"
               }`}
               onPress={() => toggleConcern(concern)}
               activeOpacity={0.7}
@@ -81,7 +81,7 @@ export default function SkinConcernsScreen() {
       <View className="flex-1" />
       <TouchableOpacity
         className={`rounded-full py-4 items-center mb-12 ${
-          skinConcerns.length > 0 ? "bg-skin-primary" : "bg-skin-dark-surface"
+          skinConcerns.length > 0 ? "bg-skin-primary" : "bg-skin-surface"
         }`}
         onPress={handleSubmit}
         activeOpacity={0.8}

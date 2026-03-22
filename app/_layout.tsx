@@ -4,6 +4,16 @@ import { Stack, useSegments, useRouter } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useAuthStore } from "../stores/useAuthStore";
 import { View, ActivityIndicator } from "react-native";
+import { Colors } from "../constants/colors";
+
+const AUTHENTICATED_SEGMENTS = new Set(["(tabs)", "settings", "question"]);
+
+const detailHeaderOptions = {
+  headerShown: true,
+  headerBackTitle: "뒤로",
+  headerTintColor: Colors.skinPrimary,
+  headerStyle: { backgroundColor: Colors.skinBg },
+};
 
 export default function RootLayout() {
   const isInitialized = useAuthStore((s) => s.isInitialized);
@@ -29,16 +39,16 @@ export default function RootLayout() {
         router.replace("/(onboarding)/age");
       }
     } else {
-      if (rootSegment !== "(tabs)") {
+      if (!AUTHENTICATED_SEGMENTS.has(rootSegment)) {
         router.replace("/(tabs)/home");
       }
     }
-  }, [isInitialized, isAuthenticated, isOnboarded, rootSegment]);
+  }, [isInitialized, isAuthenticated, isOnboarded, rootSegment, router]);
 
   if (!isInitialized) {
     return (
-      <View style={{ flex: 1, backgroundColor: "#FFF5F0", alignItems: "center", justifyContent: "center" }}>
-        <ActivityIndicator size="large" color="#E87461" />
+      <View style={{ flex: 1, backgroundColor: Colors.skinBg, alignItems: "center", justifyContent: "center" }}>
+        <ActivityIndicator size="large" color={Colors.skinPrimary} />
       </View>
     );
   }
@@ -52,13 +62,11 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen
           name="question/[id]"
-          options={{
-            headerShown: true,
-            headerTitle: "질문 상세",
-            headerBackTitle: "뒤로",
-            headerTintColor: "#E87461",
-            headerStyle: { backgroundColor: "#FFF5F0" },
-          }}
+          options={{ ...detailHeaderOptions, headerTitle: "질문 상세" }}
+        />
+        <Stack.Screen
+          name="settings"
+          options={{ ...detailHeaderOptions, headerTitle: "설정" }}
         />
       </Stack>
     </SafeAreaProvider>

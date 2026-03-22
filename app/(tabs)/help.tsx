@@ -16,6 +16,7 @@ import {
 } from "../../services/questionApi";
 import { ALL_CATEGORIES } from "../../constants/skinCategories";
 import { timeAgo } from "../../utils/dateUtils";
+import { Colors } from "../../constants/colors";
 
 export default function HelpScreen() {
   const router = useRouter();
@@ -25,10 +26,12 @@ export default function HelpScreen() {
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
   const fetchQuestions = useCallback(
     async (p = 1, refresh = false) => {
       try {
+        setHasError(false);
         const params: { page: number; limit: number; category?: string } = {
           page: p,
           limit: 20,
@@ -45,7 +48,7 @@ export default function HelpScreen() {
         setTotalPages(data.totalPages);
         setPage(p);
       } catch {
-        // silently fail
+        setHasError(true);
       } finally {
         setIsLoading(false);
         setIsRefreshing(false);
@@ -147,7 +150,7 @@ export default function HelpScreen() {
 
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#E87461" />
+          <ActivityIndicator size="large" color={Colors.skinPrimary} />
         </View>
       ) : (
         <FlatList
@@ -159,17 +162,30 @@ export default function HelpScreen() {
             <RefreshControl
               refreshing={isRefreshing}
               onRefresh={handleRefresh}
-              tintColor="#E87461"
+              tintColor={Colors.skinPrimary}
             />
           }
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
           ListEmptyComponent={
-            <View className="items-center py-20">
-              <Text className="text-skin-text-secondary text-base">
-                아직 질문이 없어요
-              </Text>
-            </View>
+            hasError ? (
+              <View className="items-center py-20">
+                <Text className="text-skin-text-secondary text-base mb-3">
+                  불러오기에 실패했어요
+                </Text>
+                <TouchableOpacity onPress={() => fetchQuestions(1, true)}>
+                  <Text className="text-skin-primary text-sm font-medium">
+                    다시 시도
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View className="items-center py-20">
+                <Text className="text-skin-text-secondary text-base">
+                  아직 질문이 없어요
+                </Text>
+              </View>
+            )
           }
         />
       )}
