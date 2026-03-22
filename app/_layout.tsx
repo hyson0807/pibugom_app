@@ -11,6 +11,7 @@ import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { UpdateLoadingScreen } from "@/components/UpdateLoadingScreen";
 import { View, ActivityIndicator } from "react-native";
 import { Colors } from "@/constants/colors";
+import { useFonts, Pacifico_400Regular } from "@expo-google-fonts/pacifico";
 
 const AUTHENTICATED_SEGMENTS = new Set(["(tabs)", "settings", "question", "edit-profile", "blocked-users", "search", "notifications"]);
 
@@ -113,9 +114,10 @@ function AppContent() {
 }
 
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({ Pacifico_400Regular });
   const { isUpdating } = useAppUpdates();
 
-  if (isUpdating) {
+  if (!fontsLoaded || isUpdating) {
     return (
       <SafeAreaProvider>
         <UpdateLoadingScreen />

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { Colors } from "@/constants/colors";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import QuestionBottomSheet from "./QuestionBottomSheet";
@@ -34,7 +35,10 @@ export default function CustomTabBar({
       {/* Center "+" button */}
       <TouchableOpacity
         style={styles.centerWrapper}
-        onPress={() => setSheetVisible(true)}
+        onPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          setSheetVisible(true);
+        }}
       >
         <View style={styles.centerButton}>
           <Ionicons name="add" size={28} color="#FFFFFF" />

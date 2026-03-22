@@ -76,8 +76,11 @@ export default function HelpScreen() {
     <SafeAreaView className="flex-1 bg-skin-bg">
       <View className="px-5 pt-4">
         <View className="flex-row items-center justify-between mb-4">
-          <Text className="text-2xl font-bold text-skin-primary">
-            다른 사람 도와주기
+          <Text
+            className="text-2xl text-skin-primary"
+            style={{ fontFamily: "Pacifico_400Regular" }}
+          >
+            Pibugom
           </Text>
           <TouchableOpacity onPress={() => router.push("/search")} hitSlop={8}>
             <Ionicons name="search-outline" size={24} color={Colors.skinText} />
