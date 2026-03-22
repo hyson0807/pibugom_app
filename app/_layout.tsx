@@ -6,7 +6,7 @@ import { useAuthStore } from "../stores/useAuthStore";
 import { View, ActivityIndicator } from "react-native";
 import { Colors } from "../constants/colors";
 
-const AUTHENTICATED_SEGMENTS = new Set(["(tabs)", "settings", "question"]);
+const AUTHENTICATED_SEGMENTS = new Set(["(tabs)", "settings", "question", "edit-profile"]);
 
 const detailHeaderOptions = {
   headerShown: true,
@@ -67,6 +67,10 @@ export default function RootLayout() {
         <Stack.Screen
           name="settings"
           options={{ ...detailHeaderOptions, headerTitle: "설정" }}
+        />
+        <Stack.Screen
+          name="edit-profile"
+          options={{ ...detailHeaderOptions, headerTitle: "프로필 수정" }}
         />
       </Stack>
     </SafeAreaProvider>
