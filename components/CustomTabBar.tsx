@@ -17,7 +17,7 @@ export default function CustomTabBar({
 }: BottomTabBarProps) {
   const [sheetVisible, setSheetVisible] = useState(false);
 
-  // Filter out hidden routes (home)
+  // Only show routes with tab config
   const visibleRoutes = state.routes.filter((r) => TAB_CONFIG[r.name]);
 
   return (

@@ -8,7 +8,6 @@ export default function TabsLayout() {
       screenOptions={{ headerShown: false }}
     >
       <Tabs.Screen name="help" />
-      <Tabs.Screen name="home" options={{ href: null }} />
       <Tabs.Screen name="my-questions" />
     </Tabs>
   );

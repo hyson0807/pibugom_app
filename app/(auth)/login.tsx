@@ -42,7 +42,7 @@ export default function WelcomeScreen() {
         await login(data.accessToken, data.refreshToken, data.isOnboarded);
 
         if (data.isOnboarded) {
-          router.replace("/(tabs)/home");
+          router.replace("/(tabs)/help");
         } else {
           router.replace("/(onboarding)/age");
         }

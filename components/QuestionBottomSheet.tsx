@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ActivityIndicator,
 } from "react-native";
 import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
@@ -104,20 +105,25 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
                 disabled={!isFormValid || createQuestion.isPending}
                 style={{ width: 60, alignItems: "flex-end" }}
               >
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontWeight: "600",
-                    color: isFormValid ? Colors.skinPrimary : Colors.skinInactive,
-                  }}
-                >
-                  {createQuestion.isPending ? "등록 중..." : "완료"}
-                </Text>
+                {createQuestion.isPending ? (
+                  <ActivityIndicator size="small" color={Colors.skinPrimary} />
+                ) : (
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      fontWeight: "600",
+                      color: isFormValid ? Colors.skinPrimary : Colors.skinInactive,
+                    }}
+                  >
+                    완료
+                  </Text>
+                )}
               </TouchableOpacity>
             </View>
 
             <ScrollView
-              style={{ flex: 1, paddingHorizontal: 20 }}
+              style={{ flex: 1 }}
+              contentContainerStyle={{ paddingHorizontal: 20 }}
               keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}
             >
@@ -134,8 +140,8 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
                           paddingHorizontal: 16,
                           paddingVertical: 8,
                           backgroundColor: isSelected ? Colors.skinPrimary : Colors.skinSurface,
-                          borderWidth: isSelected ? 0 : 1,
-                          borderColor: Colors.skinBorder,
+                          borderWidth: 1,
+                          borderColor: isSelected ? Colors.skinPrimary : Colors.skinBorder,
                         }}
                         onPress={() => setCategory(cat)}
                       >
@@ -161,6 +167,7 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
                   fontWeight: "bold",
                   color: Colors.skinText,
                   paddingVertical: 12,
+                  lineHeight: 30,
                 }}
                 placeholder="제목을 입력해주세요."
                 placeholderTextColor={Colors.skinTextSecondary}

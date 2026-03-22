@@ -4,7 +4,7 @@ import { Colors } from "../constants/colors";
 import type { ToastConfig } from "react-native-toast-message";
 
 const ICON_MAP = {
-  success: { name: "checkmark-circle" as const, color: Colors.skinSuccess },
+  success: { name: "checkmark-circle" as const, color: Colors.skinPrimary },
   error: { name: "close-circle" as const, color: Colors.skinError },
   info: { name: "information-circle" as const, color: Colors.skinPrimary },
 };
