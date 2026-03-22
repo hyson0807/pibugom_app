@@ -181,7 +181,10 @@ export default function QuestionDetailScreen() {
     targetType: "question" | "answer";
     targetId: string;
   } | null>(null);
-  const [reportVisible, setReportVisible] = useState(false);
+  const [reportTarget, setReportTarget] = useState<{
+    targetType: "question" | "answer";
+    targetId: string;
+  } | null>(null);
 
   const { data: question, isLoading, isError } = useQuestion(id);
   const createAnswer = useCreateAnswer();
@@ -302,24 +305,26 @@ export default function QuestionDetailScreen() {
 
   const handleReport = useCallback(() => {
     if (!blockTarget) return;
-    setReportVisible(true);
+    setReportTarget({
+      targetType: blockTarget.targetType,
+      targetId: blockTarget.targetId,
+    });
   }, [blockTarget]);
 
   const handleReportSubmit = useCallback(
     (reason: string, detail?: string) => {
-      if (!blockTarget) return;
+      if (!reportTarget) return;
       reportContent.mutate(
         {
-          targetType: blockTarget.targetType,
-          targetId: blockTarget.targetId,
+          targetType: reportTarget.targetType,
+          targetId: reportTarget.targetId,
           reason,
           detail,
         },
         {
           onSuccess: () => {
             showToast("success", "신고가 접수되었습니다.");
-            setReportVisible(false);
-            setBlockTarget(null);
+            setReportTarget(null);
           },
           onError: (error: any) => {
             if (error?.response?.status === 409) {
@@ -327,12 +332,12 @@ export default function QuestionDetailScreen() {
             } else {
               showToast("error", "신고에 실패했습니다.");
             }
-            setReportVisible(false);
+            setReportTarget(null);
           },
         }
       );
     },
-    [blockTarget, reportContent]
+    [reportTarget, reportContent]
   );
 
   const handleDeleteAnswer = useCallback(() => {
@@ -597,18 +602,15 @@ export default function QuestionDetailScreen() {
       />
 
       <BlockActionSheet
-        visible={!!blockTarget && !reportVisible}
+        visible={!!blockTarget && !reportTarget}
         onClose={() => setBlockTarget(null)}
         onReport={handleReport}
         onBlock={handleBlock}
       />
 
       <ReportReasonSheet
-        visible={reportVisible}
-        onClose={() => {
-          setReportVisible(false);
-          setBlockTarget(null);
-        }}
+        visible={!!reportTarget}
+        onClose={() => setReportTarget(null)}
         onSubmit={handleReportSubmit}
       />
     </KeyboardAvoidingView>
