@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { userApi } from "@/services/userApi";
 
@@ -20,6 +20,26 @@ export function useDeleteAccount() {
     onSuccess: () => {
       queryClient.clear();
       logout();
+    },
+  });
+}
+
+export function useBlockedUsers() {
+  return useQuery({
+    queryKey: ["blockedUsers"],
+    queryFn: () => userApi.getBlockedUsers(),
+  });
+}
+
+export function useBlockUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (targetUserId: string) => userApi.blockUser(targetUserId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["questions"] });
+      queryClient.invalidateQueries({ queryKey: ["question"] });
+      queryClient.invalidateQueries({ queryKey: ["myAnswers"] });
+      queryClient.invalidateQueries({ queryKey: ["blockedUsers"] });
     },
   });
 }

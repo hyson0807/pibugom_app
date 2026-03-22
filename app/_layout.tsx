@@ -11,7 +11,7 @@ import { UpdateLoadingScreen } from "@/components/UpdateLoadingScreen";
 import { View, ActivityIndicator } from "react-native";
 import { Colors } from "@/constants/colors";
 
-const AUTHENTICATED_SEGMENTS = new Set(["(tabs)", "settings", "question", "edit-profile"]);
+const AUTHENTICATED_SEGMENTS = new Set(["(tabs)", "settings", "question", "edit-profile", "blocked-users"]);
 
 const detailHeaderOptions = {
   headerShown: true,
@@ -90,6 +90,10 @@ function AppContent() {
         <Stack.Screen
           name="edit-profile"
           options={{ ...detailHeaderOptions, headerTitle: "프로필 수정" }}
+        />
+        <Stack.Screen
+          name="blocked-users"
+          options={{ ...detailHeaderOptions, headerTitle: "차단 목록" }}
         />
       </Stack>
       <Toast config={toastConfig} />

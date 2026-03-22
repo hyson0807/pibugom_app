@@ -9,6 +9,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import Constants from "expo-constants";
+import { useRouter } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useDeleteAccount } from "@/hooks/useUser";
@@ -25,6 +26,7 @@ const INFO_LINKS = [
 ];
 
 export default function SettingsScreen() {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
@@ -109,6 +111,28 @@ export default function SettingsScreen() {
               {APP_VERSION}
             </Text>
           </View>
+        </View>
+
+        <View className="border-t border-skin-border" />
+
+        {/* 차단 관리 */}
+        <View className="pt-6 pb-2">
+          <Text className="text-lg font-bold text-skin-text mb-2">
+            차단 관리
+          </Text>
+
+          <TouchableOpacity
+            className="flex-row items-center justify-between py-4"
+            onPress={() => router.push("/blocked-users")}
+            activeOpacity={0.7}
+          >
+            <Text className="text-base text-skin-text">차단 목록</Text>
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={Colors.skinTextSecondary}
+            />
+          </TouchableOpacity>
         </View>
 
         <View className="border-t border-skin-border" />

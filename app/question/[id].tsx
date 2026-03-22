@@ -22,9 +22,11 @@ import {
   useDeleteAnswer,
   useToggleBookmark,
 } from "@/hooks/useQuestions";
+import { useBlockUser } from "@/hooks/useUser";
 import { useAuthStore } from "@/stores/useAuthStore";
 import QuestionActionSheet from "@/components/QuestionActionSheet";
 import AnswerActionSheet from "@/components/AnswerActionSheet";
+import BlockActionSheet from "@/components/BlockActionSheet";
 import { showToast } from "@/utils/toast";
 import { timeAgo } from "@/utils/dateUtils";
 import { Colors } from "@/constants/colors";
@@ -118,7 +120,7 @@ const AnswerItem = memo(function AnswerItem({
               />
             </TouchableOpacity>
           )}
-          {isMyAnswer && (
+          {currentUserId && (
             <TouchableOpacity
               onPress={() => onMenuPress(item)}
               hitSlop={8}
@@ -171,12 +173,17 @@ export default function QuestionDetailScreen() {
   const [answerSheetTarget, setAnswerSheetTarget] = useState<Answer | null>(
     null
   );
+  const [blockTarget, setBlockTarget] = useState<{
+    userId: string;
+    nickname: string;
+  } | null>(null);
 
   const { data: question, isLoading, isError } = useQuestion(id);
   const createAnswer = useCreateAnswer();
   const deleteQuestion = useDeleteQuestion();
   const deleteAnswer = useDeleteAnswer();
   const toggleBookmark = useToggleBookmark();
+  const blockUser = useBlockUser();
 
   const isMyQuestion = question?.userId === user?.id;
 
@@ -223,9 +230,19 @@ export default function QuestionDetailScreen() {
     []
   );
 
-  const handleMenuPress = useCallback((item: Answer) => {
-    setAnswerSheetTarget(item);
-  }, []);
+  const handleMenuPress = useCallback(
+    (item: Answer) => {
+      if (item.userId === user?.id) {
+        setAnswerSheetTarget(item);
+      } else {
+        setBlockTarget({
+          userId: item.userId,
+          nickname: item.user.nickname ?? "익명",
+        });
+      }
+    },
+    [user?.id]
+  );
 
   const handleSendAnswer = () => {
     if (!answerText.trim() || createAnswer.isPending) return;
@@ -248,6 +265,32 @@ export default function QuestionDetailScreen() {
       }
     );
   };
+
+  const handleBlock = useCallback(() => {
+    if (!blockTarget) return;
+    Alert.alert(
+      "사용자 차단",
+      `${blockTarget.nickname}님을 차단하시겠습니까?\n차단된 사용자의 글과 댓글이 숨겨집니다.`,
+      [
+        { text: "취소", style: "cancel" },
+        {
+          text: "차단",
+          style: "destructive",
+          onPress: () => {
+            blockUser.mutate(blockTarget.userId, {
+              onSuccess: () => {
+                showToast("success", "사용자를 차단했습니다.");
+                setBlockTarget(null);
+              },
+              onError: () => {
+                showToast("error", "차단에 실패했습니다.");
+              },
+            });
+          },
+        },
+      ]
+    );
+  }, [blockTarget, blockUser]);
 
   const handleDeleteAnswer = useCallback(() => {
     if (!answerSheetTarget) return;
@@ -372,6 +415,24 @@ export default function QuestionDetailScreen() {
               <Text className="text-xs text-skin-text-secondary ml-2">
                 {timeAgo(question.createdAt)}
               </Text>
+              {!isMyQuestion && (
+                <TouchableOpacity
+                  onPress={() =>
+                    setBlockTarget({
+                      userId: question.userId,
+                      nickname: question.user?.nickname ?? "익명",
+                    })
+                  }
+                  hitSlop={8}
+                  className="ml-auto"
+                >
+                  <Ionicons
+                    name="ellipsis-vertical"
+                    size={16}
+                    color={Colors.skinTextSecondary}
+                  />
+                </TouchableOpacity>
+              )}
             </View>
             <Text className="text-xl font-bold text-skin-text mb-2">
               {question.title}
@@ -465,6 +526,12 @@ export default function QuestionDetailScreen() {
         visible={!!answerSheetTarget}
         onClose={() => setAnswerSheetTarget(null)}
         onDelete={handleDeleteAnswer}
+      />
+
+      <BlockActionSheet
+        visible={!!blockTarget}
+        onClose={() => setBlockTarget(null)}
+        onBlock={handleBlock}
       />
     </KeyboardAvoidingView>
   );
