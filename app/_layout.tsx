@@ -40,7 +40,7 @@ export default function RootLayout() {
       }
     } else {
       if (!AUTHENTICATED_SEGMENTS.has(rootSegment)) {
-        router.replace("/(tabs)/home");
+        router.replace("/(tabs)/help");
       }
     }
   }, [isInitialized, isAuthenticated, isOnboarded, rootSegment, router]);
