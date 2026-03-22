@@ -1,4 +1,12 @@
 import { api } from "./api";
+import type { CompressedImage } from "@/utils/imageUpload";
+
+export interface QuestionImage {
+  id: string;
+  questionId: string;
+  imageUrl: string;
+  order: number;
+}
 
 export interface Question {
   id: string;
@@ -13,6 +21,7 @@ export interface Question {
   answers?: Answer[];
   answerCount?: number;
   isBookmarked?: boolean;
+  images?: QuestionImage[];
 }
 
 export interface Answer {
@@ -35,8 +44,31 @@ export interface QuestionsResponse {
 }
 
 export const questionApi = {
-  create: (data: { title: string; content: string; category: string }) =>
-    api.post<Question>("/questions", data).then((r) => r.data),
+  create: (data: {
+    title: string;
+    content: string;
+    category: string;
+    images?: CompressedImage[];
+  }) => {
+    const formData = new FormData();
+    formData.append("title", data.title);
+    formData.append("content", data.content);
+    formData.append("category", data.category);
+    if (data.images) {
+      data.images.forEach((img) => {
+        formData.append(
+          "images",
+          { uri: img.uri, type: img.type, name: img.name } as unknown as Blob
+        );
+      });
+    }
+    return api
+      .post<Question>("/questions", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        timeout: 30_000,
+      })
+      .then((r) => r.data);
+  },
 
   getAll: (params?: { page?: number; limit?: number; category?: string }) =>
     api.get<QuestionsResponse>("/questions", { params }).then((r) => r.data),
@@ -58,8 +90,38 @@ export const questionApi = {
 
   update: (
     id: string,
-    data: { title?: string; content?: string; category?: string }
-  ) => api.patch<Question>(`/questions/${id}`, data).then((r) => r.data),
+    data: {
+      title?: string;
+      content?: string;
+      category?: string;
+      newImages?: CompressedImage[];
+      deleteImageIds?: string[];
+    }
+  ) => {
+    const formData = new FormData();
+    if (data.title) formData.append("title", data.title);
+    if (data.content) formData.append("content", data.content);
+    if (data.category) formData.append("category", data.category);
+    if (data.deleteImageIds) {
+      data.deleteImageIds.forEach((imgId) => {
+        formData.append("deleteImageIds", imgId);
+      });
+    }
+    if (data.newImages) {
+      data.newImages.forEach((img) => {
+        formData.append(
+          "images",
+          { uri: img.uri, type: img.type, name: img.name } as unknown as Blob
+        );
+      });
+    }
+    return api
+      .patch<Question>(`/questions/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        timeout: 30_000,
+      })
+      .then((r) => r.data);
+  },
 
   delete: (id: string) => api.delete(`/questions/${id}`).then((r) => r.data),
 

@@ -9,6 +9,7 @@ import {
   type Question,
   type QuestionsResponse,
 } from "@/services/questionApi";
+import type { CompressedImage } from "@/utils/imageUpload";
 
 const getNextPageParam = (lastPage: QuestionsResponse) =>
   lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined;
@@ -95,8 +96,12 @@ export function useQuestion(id: string) {
 export function useCreateQuestion() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: { title: string; content: string; category: string }) =>
-      questionApi.create(data),
+    mutationFn: (data: {
+      title: string;
+      content: string;
+      category: string;
+      images?: CompressedImage[];
+    }) => questionApi.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["questions"] });
       queryClient.invalidateQueries({ queryKey: ["myQuestions"] });
@@ -112,7 +117,13 @@ export function useUpdateQuestion() {
       data,
     }: {
       id: string;
-      data: { title?: string; content?: string; category?: string };
+      data: {
+        title?: string;
+        content?: string;
+        category?: string;
+        newImages?: CompressedImage[];
+        deleteImageIds?: string[];
+      };
     }) => questionApi.update(id, data),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({

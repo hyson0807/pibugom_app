@@ -4,6 +4,7 @@ import {
   TextInput,
   TouchableOpacity,
   FlatList,
+  ScrollView,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
@@ -440,6 +441,29 @@ export default function QuestionDetailScreen() {
             <Text className="text-base text-skin-text leading-6 mb-3">
               {question.content}
             </Text>
+            {question.images && question.images.length > 0 && (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={{ marginBottom: 12 }}
+              >
+                <View style={{ flexDirection: "row", gap: 8 }}>
+                  {question.images.map((img) => (
+                    <Image
+                      key={img.id}
+                      source={{ uri: img.imageUrl }}
+                      style={{
+                        width: 200,
+                        height: 200,
+                        borderRadius: 12,
+                        backgroundColor: Colors.skinSurface,
+                      }}
+                      resizeMode="cover"
+                    />
+                  ))}
+                </View>
+              </ScrollView>
+            )}
             <View className="flex-row justify-end mb-3">
               <TouchableOpacity
                 onPress={() => toggleBookmark.mutate(id)}
