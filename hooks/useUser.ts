@@ -46,11 +46,6 @@ export function useBlockUser() {
 
 export function useReportContent() {
   return useMutation({
-    mutationFn: (data: {
-      targetType: "question" | "answer";
-      targetId: string;
-      reason: string;
-      detail?: string;
-    }) => userApi.reportContent(data),
+    mutationFn: userApi.reportContent,
   });
 }

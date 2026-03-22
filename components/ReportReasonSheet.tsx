@@ -48,12 +48,13 @@ export default function ReportReasonSheet({
     [onSubmit]
   );
 
+  const trimmedDetail = detailText.trim();
+
   const handleDetailSubmit = () => {
-    const trimmed = detailText.trim();
-    if (!trimmed) return;
+    if (!trimmedDetail) return;
     setDetailVisible(false);
     setDetailText("");
-    onSubmit("other", trimmed);
+    onSubmit("other", trimmedDetail);
   };
 
   const handleDetailClose = () => {
@@ -152,12 +153,12 @@ export default function ReportReasonSheet({
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={handleDetailSubmit}
-                disabled={!detailText.trim()}
+                disabled={!trimmedDetail}
                 style={{
                   paddingHorizontal: 16,
                   paddingVertical: 10,
                   borderRadius: 8,
-                  backgroundColor: detailText.trim()
+                  backgroundColor: trimmedDetail
                     ? Colors.skinPrimary
                     : Colors.skinInactive,
                 }}
