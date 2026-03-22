@@ -304,24 +304,44 @@ export default function QuestionDetailScreen() {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       keyboardVerticalOffset={90}
     >
-      {isMyQuestion && (
-        <Stack.Screen
-          options={{
-            headerRight: () => (
-              <TouchableOpacity
-                onPress={() => setSheetVisible(true)}
-                hitSlop={8}
+      <Stack.Screen
+        options={{
+          headerTitle: () => (
+            <View style={{ alignItems: "center" }}>
+              <Text style={{ fontSize: 13, fontWeight: "600", color: Colors.skinPrimary }}>
+                질문 상세
+              </Text>
+              <View
+                style={{
+                  backgroundColor: "rgba(232,116,97,0.1)",
+                  borderRadius: 999,
+                  paddingHorizontal: 10,
+                  paddingVertical: 3,
+                  marginTop: 4,
+                }}
               >
-                <Ionicons
-                  name="ellipsis-horizontal"
-                  size={22}
-                  color={Colors.skinPrimary}
-                />
-              </TouchableOpacity>
-            ),
-          }}
-        />
-      )}
+                <Text style={{ fontSize: 11, fontWeight: "500", color: Colors.skinPrimary }}>
+                  {question.category}
+                </Text>
+              </View>
+            </View>
+          ),
+          headerRight: isMyQuestion
+            ? () => (
+                <TouchableOpacity
+                  onPress={() => setSheetVisible(true)}
+                  hitSlop={8}
+                >
+                  <Ionicons
+                    name="ellipsis-horizontal"
+                    size={22}
+                    color={Colors.skinPrimary}
+                  />
+                </TouchableOpacity>
+              )
+            : undefined,
+        }}
+      />
       <FlatList
         data={flattenedAnswers}
         renderItem={renderAnswer}
@@ -329,25 +349,31 @@ export default function QuestionDetailScreen() {
         contentContainerStyle={{ padding: 20, paddingBottom: 10 }}
         ListHeaderComponent={
           <View className="mb-6">
-            <View className="bg-skin-primary/10 rounded-full px-3 py-1 self-start mb-3">
-              <Text className="text-xs font-medium text-skin-primary">
-                {question.category}
+            <View className="flex-row items-center mb-3">
+              {question.user?.profileImage ? (
+                <Image
+                  source={{ uri: question.user.profileImage }}
+                  className="w-8 h-8 rounded-full mr-2"
+                />
+              ) : (
+                <View className="w-8 h-8 rounded-full bg-skin-border mr-2 items-center justify-center">
+                  <Ionicons
+                    name="person"
+                    size={16}
+                    color={Colors.skinTextSecondary}
+                  />
+                </View>
+              )}
+              <Text className="text-sm font-medium text-skin-text">
+                {question.user?.nickname ?? "익명"}
+              </Text>
+              <Text className="text-xs text-skin-text-secondary ml-2">
+                {timeAgo(question.createdAt)}
               </Text>
             </View>
             <Text className="text-xl font-bold text-skin-text mb-2">
               {question.title}
             </Text>
-            <View className="flex-row items-center mb-3">
-              <Text className="text-sm text-skin-text-secondary">
-                {question.user?.nickname ?? "익명"}
-              </Text>
-              <Text className="text-sm text-skin-text-secondary mx-2">
-                ·
-              </Text>
-              <Text className="text-sm text-skin-text-secondary">
-                {timeAgo(question.createdAt)}
-              </Text>
-            </View>
             <Text className="text-base text-skin-text leading-6 mb-4">
               {question.content}
             </Text>

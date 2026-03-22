@@ -16,6 +16,7 @@ const detailHeaderOptions = {
   headerBackTitle: "뒤로",
   headerTintColor: Colors.skinPrimary,
   headerStyle: { backgroundColor: Colors.skinBg },
+  headerTitleStyle: { fontSize: 15 },
 };
 
 const queryClient = new QueryClient({
