@@ -10,6 +10,7 @@ import {
 import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 import { type Question } from "@/services/questionApi";
 import { useQuestions } from "@/hooks/useQuestions";
 import { ALL_CATEGORIES } from "@/constants/skinCategories";
@@ -74,9 +75,14 @@ export default function HelpScreen() {
   return (
     <SafeAreaView className="flex-1 bg-skin-bg">
       <View className="px-5 pt-4">
-        <Text className="text-2xl font-bold text-skin-primary mb-4">
-          다른 사람 도와주기
-        </Text>
+        <View className="flex-row items-center justify-between mb-4">
+          <Text className="text-2xl font-bold text-skin-primary">
+            다른 사람 도와주기
+          </Text>
+          <TouchableOpacity onPress={() => router.push("/search")} hitSlop={8}>
+            <Ionicons name="search-outline" size={24} color={Colors.skinText} />
+          </TouchableOpacity>
+        </View>
 
         {/* Category filter */}
         <ScrollView

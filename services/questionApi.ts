@@ -70,7 +70,7 @@ export const questionApi = {
       .then((r) => r.data);
   },
 
-  getAll: (params?: { page?: number; limit?: number; category?: string }) =>
+  getAll: (params?: { page?: number; limit?: number; category?: string; search?: string; period?: string }) =>
     api.get<QuestionsResponse>("/questions", { params }).then((r) => r.data),
 
   getMy: (params?: { page?: number; limit?: number }) =>

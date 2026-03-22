@@ -354,7 +354,7 @@ export default function QuestionDetailScreen() {
         options={{
           headerTitle: () => (
             <View style={{ alignItems: "center" }}>
-              <Text style={{ fontSize: 13, fontWeight: "600", color: Colors.skinPrimary }}>
+              <Text style={{ fontSize: 13, fontWeight: "600", color: "#FFFFFF" }}>
                 질문 상세
               </Text>
               <View
