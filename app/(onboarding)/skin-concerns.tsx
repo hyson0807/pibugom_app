@@ -27,7 +27,6 @@ export default function SkinConcernsScreen() {
       });
       setOnboarded();
       reset();
-      router.replace("/(tabs)/home");
     } catch {
       Alert.alert("오류", "저장 중 문제가 발생했습니다.");
     } finally {

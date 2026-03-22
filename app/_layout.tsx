@@ -57,9 +57,9 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(onboarding)" />
-        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="(auth)" options={{ animation: "none" }} />
+        <Stack.Screen name="(onboarding)" options={{ animation: "none" }} />
+        <Stack.Screen name="(tabs)" options={{ animation: "none" }} />
         <Stack.Screen
           name="question/[id]"
           options={{ ...detailHeaderOptions, headerTitle: "질문 상세" }}
