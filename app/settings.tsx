@@ -17,11 +17,11 @@ import { Colors } from "@/constants/colors";
 
 const APP_VERSION = Constants.expoConfig?.version ?? "1.0.0";
 
-// TODO: 실제 URL로 교체
 const INFO_LINKS = [
-  { label: "서비스 이용약관", url: "https://example.com/terms" },
-  { label: "개인정보처리방침", url: "https://example.com/privacy" },
-  { label: "오픈소스 라이선스", url: "https://example.com/licenses" },
+  { label: "커뮤니티 가이드라인", url: "https://hyson.kr/pibugom/community-guidelines" },
+  { label: "서비스 이용약관", url: "https://hyson.kr/pibugom/terms" },
+  { label: "개인정보처리방침", url: "https://hyson.kr/pibugom/privacy" },
+  { label: "오픈소스 라이선스", url: "https://hyson.kr/pibugom/licenses" },
 ];
 
 export default function SettingsScreen() {
