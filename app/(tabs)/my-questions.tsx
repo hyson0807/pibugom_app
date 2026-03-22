@@ -52,7 +52,9 @@ export default function MyQuestionsScreen() {
 
   const queryMap = { questions: questionsQuery, answers: answersQuery, bookmarks: bookmarksQuery };
   const activeQuery = queryMap[activeTab];
-  const { data, isLoading, isRefetching, isError, refetch, fetchNextPage, hasNextPage } = activeQuery;
+  const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage } = activeQuery;
+
+  const [refreshing, setRefreshing] = useState(false);
 
   const items = useMemo(
     () => data?.pages.flatMap((p) => p.questions) ?? [],
@@ -62,14 +64,15 @@ export default function MyQuestionsScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchProfile();
-      activeQuery.refetch();
-    }, [fetchProfile, activeQuery])
+      refetch();
+    }, [])
   );
 
-  const handleRefresh = () => {
-    fetchProfile();
-    refetch();
-  };
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await Promise.all([fetchProfile(), refetch()]);
+    setRefreshing(false);
+  }, [fetchProfile, refetch]);
 
   const subtitle = useMemo(() => {
     const parts: string[] = [];
@@ -253,7 +256,7 @@ export default function MyQuestionsScreen() {
           ListHeaderComponent={renderProfileHeader}
           refreshControl={
             <RefreshControl
-              refreshing={isRefetching}
+              refreshing={refreshing}
               onRefresh={handleRefresh}
               tintColor={Colors.skinPrimary}
             />
