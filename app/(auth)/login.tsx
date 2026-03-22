@@ -1,9 +1,10 @@
 import { useEffect } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Platform } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import * as AuthSession from "expo-auth-session/providers/google";
+import * as AppleAuthentication from "expo-apple-authentication";
 import * as WebBrowser from "expo-web-browser";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { api } from "@/services/api";
@@ -22,6 +23,15 @@ export default function WelcomeScreen() {
     webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
   });
 
+  const handlePostLogin = async (data: {
+    accessToken: string;
+    refreshToken: string;
+    isOnboarded: boolean;
+  }) => {
+    await login(data.accessToken, data.refreshToken, data.isOnboarded);
+    router.replace(data.isOnboarded ? "/(tabs)/help" : "/(onboarding)/age");
+  };
+
   useEffect(() => {
     if (response?.type !== "success") return;
 
@@ -39,13 +49,7 @@ export default function WelcomeScreen() {
           idToken,
           accessToken,
         });
-        await login(data.accessToken, data.refreshToken, data.isOnboarded);
-
-        if (data.isOnboarded) {
-          router.replace("/(tabs)/help");
-        } else {
-          router.replace("/(onboarding)/age");
-        }
+        await handlePostLogin(data);
       } catch {
         showToast("error", "로그인 중 문제가 발생했습니다.");
       }
@@ -53,6 +57,43 @@ export default function WelcomeScreen() {
 
     handleSignIn();
   }, [response]);
+
+  const handleAppleSignIn = async () => {
+    try {
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+
+      if (!credential.identityToken) {
+        showToast("error", "Apple 인증에 실패했습니다.");
+        return;
+      }
+
+      const fullName =
+        [credential.fullName?.givenName, credential.fullName?.familyName]
+          .filter(Boolean)
+          .join(" ") || undefined;
+
+      const { data } = await api.post("/auth/apple", {
+        identityToken: credential.identityToken,
+        fullName,
+        email: credential.email,
+      });
+
+      await handlePostLogin(data);
+    } catch (error: unknown) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        (error as { code: string }).code === "ERR_REQUEST_CANCELED"
+      ) return;
+      showToast("error", "로그인 중 문제가 발생했습니다.");
+    }
+  };
 
   return (
     <LinearGradient
@@ -76,6 +117,16 @@ export default function WelcomeScreen() {
           <Ionicons name="logo-google" size={20} color={Colors.skinTextDark} />
           <Text style={styles.googleButtonText}>Google로 시작하기</Text>
         </TouchableOpacity>
+
+        {Platform.OS === "ios" && (
+          <AppleAuthentication.AppleAuthenticationButton
+            buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+            buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
+            cornerRadius={9999}
+            style={styles.appleButton}
+            onPress={handleAppleSignIn}
+          />
+        )}
 
         <Text style={styles.termsText}>
           계속하면 이용약관 및 개인정보처리방침에 동의하게 됩니다
@@ -123,6 +174,10 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: Colors.skinTextDark,
     marginLeft: 12,
+  },
+  appleButton: {
+    height: 52,
+    marginTop: 12,
   },
   termsText: {
     color: "rgba(255,255,255,0.6)",
