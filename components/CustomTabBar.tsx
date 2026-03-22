@@ -39,7 +39,7 @@ export default function CustomTabBar({
         <View style={styles.centerButton}>
           <Ionicons name="add" size={28} color="#FFFFFF" />
         </View>
-        <Text style={[styles.label, { color: Colors.skinInactive }]}>
+        <Text style={[styles.label, { color: Colors.skinPrimary }]}>
           질문하기
         </Text>
       </TouchableOpacity>

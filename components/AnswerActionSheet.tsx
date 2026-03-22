@@ -5,19 +5,16 @@ import { Colors } from "../constants/colors";
 interface Props {
   visible: boolean;
   onClose: () => void;
-  onEdit: () => void;
   onDelete: () => void;
 }
 
-export default function QuestionActionSheet({
+export default function AnswerActionSheet({
   visible,
   onClose,
-  onEdit,
   onDelete,
 }: Props) {
   const actions = useMemo<ActionSheetItem[]>(
     () => [
-      { icon: "create-outline", label: "수정하기", onPress: onEdit },
       {
         icon: "trash-outline",
         label: "삭제하기",
@@ -25,7 +22,7 @@ export default function QuestionActionSheet({
         onPress: onDelete,
       },
     ],
-    [onEdit, onDelete]
+    [onDelete]
   );
 
   return <ActionSheet visible={visible} onClose={onClose} actions={actions} />;

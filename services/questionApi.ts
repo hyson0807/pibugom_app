@@ -11,6 +11,7 @@ export interface Question {
   user?: { id: string; nickname: string | null; profileImage: string | null };
   _count?: { answers: number };
   answers?: Answer[];
+  answerCount?: number;
 }
 
 export interface Answer {
@@ -18,8 +19,11 @@ export interface Answer {
   questionId: string;
   userId: string;
   content: string;
+  parentId: string | null;
+  deletedAt: string | null;
   createdAt: string;
   user: { id: string; nickname: string | null; profileImage: string | null };
+  replies?: Answer[];
 }
 
 export interface QuestionsResponse {
@@ -49,8 +53,13 @@ export const questionApi = {
 
   delete: (id: string) => api.delete(`/questions/${id}`).then((r) => r.data),
 
-  createAnswer: (questionId: string, content: string) =>
+  createAnswer: (questionId: string, content: string, parentId?: string) =>
     api
-      .post<Answer>(`/questions/${questionId}/answers`, { content })
+      .post<Answer>(`/questions/${questionId}/answers`, { content, parentId })
+      .then((r) => r.data),
+
+  deleteAnswer: (questionId: string, answerId: string) =>
+    api
+      .delete(`/questions/${questionId}/answers/${answerId}`)
       .then((r) => r.data),
 };

@@ -93,14 +93,35 @@ export function useCreateAnswer() {
     mutationFn: ({
       questionId,
       content,
+      parentId,
     }: {
       questionId: string;
       content: string;
-    }) => questionApi.createAnswer(questionId, content),
+      parentId?: string;
+    }) => questionApi.createAnswer(questionId, content, parentId),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["question", variables.questionId],
       });
+    },
+  });
+}
+
+export function useDeleteAnswer() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      questionId,
+      answerId,
+    }: {
+      questionId: string;
+      answerId: string;
+    }) => questionApi.deleteAnswer(questionId, answerId),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["question", variables.questionId],
+      });
+      queryClient.invalidateQueries({ queryKey: ["questions"] });
     },
   });
 }
