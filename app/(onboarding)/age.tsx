@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { useOnboardingStore } from "@/stores/useOnboardingStore";
@@ -24,11 +25,14 @@ const MONTH_NAMES = [
 
 export default function AgeScreen() {
   const router = useRouter();
-  const { birthMonth, birthYear, setBirth } = useOnboardingStore();
+  const setBirth = useOnboardingStore((s) => s.setBirth);
 
-  const monthIndex = birthMonth - 1;
-  const yearIndex = YEARS.indexOf(birthYear);
-  const age = currentYear - birthYear;
+  const [localMonth, setLocalMonth] = useState(new Date().getMonth() + 1);
+  const [localYear, setLocalYear] = useState(currentYear - 20);
+
+  const monthIndex = localMonth - 1;
+  const yearIndex = YEARS.indexOf(localYear);
+  const age = currentYear - localYear;
 
   return (
     <View className="flex-1 bg-skin-bg px-6 pt-16">
@@ -48,13 +52,13 @@ export default function AgeScreen() {
           data={MONTHS}
           labels={MONTH_NAMES}
           selectedIndex={monthIndex}
-          onSelect={(m) => setBirth(m, birthYear)}
+          onSelect={(m) => setLocalMonth(m)}
         />
         <View className="w-4" />
         <WheelPicker
           data={YEARS}
           selectedIndex={yearIndex}
-          onSelect={(y) => setBirth(birthMonth, y)}
+          onSelect={(y) => setLocalYear(y)}
         />
       </View>
 
@@ -66,11 +70,24 @@ export default function AgeScreen() {
       {/* Bottom */}
       <View className="flex-1" />
       <TouchableOpacity
-        className="bg-skin-primary rounded-full py-4 items-center mb-12"
-        onPress={() => router.push("/(onboarding)/gender")}
+        className="bg-skin-primary rounded-full py-4 items-center"
+        onPress={() => {
+          setBirth(localMonth, localYear);
+          router.push("/(onboarding)/gender");
+        }}
         activeOpacity={0.8}
       >
         <Text className="text-white text-lg font-semibold">다음</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        className="py-4 items-center mb-12"
+        onPress={() => {
+          setBirth(null, null);
+          router.push("/(onboarding)/gender");
+        }}
+        activeOpacity={0.8}
+      >
+        <Text className="text-white/50 text-base">건너뛰기</Text>
       </TouchableOpacity>
     </View>
   );

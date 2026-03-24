@@ -20,7 +20,10 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.hyson.pibugom",
       "usesAppleSignIn": true,
-      "appleTeamId": "KX7984KBJW"
+      "appleTeamId": "KX7984KBJW",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -30,7 +33,9 @@
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.hyson.pibugom",
-      "permissions": []
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "output": "static",

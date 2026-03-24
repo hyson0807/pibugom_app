@@ -1,23 +1,20 @@
 import { create } from "zustand";
 
 interface OnboardingState {
-  birthMonth: number;
-  birthYear: number;
+  birthMonth: number | null;
+  birthYear: number | null;
   gender: string;
   skinConcerns: string[];
 
-  setBirth: (month: number, year: number) => void;
+  setBirth: (month: number | null, year: number | null) => void;
   setGender: (gender: string) => void;
   toggleConcern: (concern: string) => void;
   reset: () => void;
 }
 
-const currentYear = new Date().getFullYear();
-const currentMonth = new Date().getMonth() + 1;
-
 export const useOnboardingStore = create<OnboardingState>((set, get) => ({
-  birthMonth: currentMonth,
-  birthYear: currentYear - 20,
+  birthMonth: null,
+  birthYear: null,
   gender: "",
   skinConcerns: [],
 
@@ -36,8 +33,8 @@ export const useOnboardingStore = create<OnboardingState>((set, get) => ({
 
   reset: () =>
     set({
-      birthMonth: currentMonth,
-      birthYear: currentYear - 20,
+      birthMonth: null,
+      birthYear: null,
       gender: "",
       skinConcerns: [],
     }),

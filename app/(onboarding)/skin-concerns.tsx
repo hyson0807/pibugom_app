@@ -10,8 +10,7 @@ import { showToast } from "@/utils/toast";
 
 export default function SkinConcernsScreen() {
   const router = useRouter();
-  const { birthMonth, birthYear, gender, skinConcerns, toggleConcern, reset } =
-    useOnboardingStore();
+  const { skinConcerns, toggleConcern, reset } = useOnboardingStore();
   const setOnboarded = useAuthStore((s) => s.setOnboarded);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -20,12 +19,13 @@ export default function SkinConcernsScreen() {
     setIsSubmitting(true);
 
     try {
-      await api.patch("/users/onboarding", {
-        birthMonth,
-        birthYear,
-        gender,
-        skinConcerns,
-      });
+      const { birthMonth, birthYear, gender } = useOnboardingStore.getState();
+      const payload: Record<string, unknown> = { gender, skinConcerns };
+      if (birthMonth !== null && birthYear !== null) {
+        payload.birthMonth = birthMonth;
+        payload.birthYear = birthYear;
+      }
+      await api.patch("/users/onboarding", payload);
       setOnboarded();
       reset();
     } catch {

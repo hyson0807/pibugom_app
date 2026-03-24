@@ -121,7 +121,7 @@ export default function WelcomeScreen() {
         {Platform.OS === "ios" && (
           <AppleAuthentication.AppleAuthenticationButton
             buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
-            buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+            buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
             cornerRadius={9999}
             style={styles.appleButton}
             onPress={handleAppleSignIn}
