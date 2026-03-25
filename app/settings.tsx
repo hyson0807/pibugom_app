@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import * as Clipboard from "expo-clipboard";
 import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
@@ -147,6 +148,18 @@ export default function SettingsScreen() {
               />
             </TouchableOpacity>
           ))}
+
+          <TouchableOpacity
+            className="flex-row items-center justify-between py-4"
+            onPress={() => {
+              Clipboard.setStringAsync("contact@hyson.kr");
+              showToast("success", "이메일 주소가 복사되었어요.");
+            }}
+            activeOpacity={0.7}
+          >
+            <Text className="text-base text-skin-text">문의사항</Text>
+            <Text className="text-base text-skin-text-secondary">contact@hyson.kr</Text>
+          </TouchableOpacity>
 
           <View className="flex-row items-center justify-between py-4">
             <Text className="text-base text-skin-text">앱 버전</Text>
