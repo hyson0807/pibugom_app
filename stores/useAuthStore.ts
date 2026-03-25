@@ -109,6 +109,17 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   logout: async () => {
     const token = useAuthStore.getState().accessToken;
+    // Remove push token from server BEFORE revoking auth token
+    try {
+      const pushToken = await SecureStore.getItemAsync("pushToken");
+      if (pushToken) {
+        const { notificationApi } = await import("../services/notificationApi");
+        await notificationApi.removePushToken(pushToken);
+        await SecureStore.deleteItemAsync("pushToken");
+      }
+    } catch {
+      // best-effort
+    }
     // Use plain axios to avoid response interceptor loop
     try {
       const { default: axios } = await import("axios");
@@ -120,17 +131,6 @@ export const useAuthStore = create<AuthState>((set) => ({
       });
     } catch {
       // best-effort: clear local state even if server call fails
-    }
-    // Remove push token from server
-    try {
-      const pushToken = await SecureStore.getItemAsync("pushToken");
-      if (pushToken) {
-        const { notificationApi } = await import("../services/notificationApi");
-        await notificationApi.removePushToken(pushToken);
-        await SecureStore.deleteItemAsync("pushToken");
-      }
-    } catch {
-      // best-effort
     }
     await Promise.all([
       SecureStore.deleteItemAsync("accessToken"),

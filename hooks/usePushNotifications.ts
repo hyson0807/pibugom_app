@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 import { Platform } from "react-native";
-import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
 import * as SecureStore from "expo-secure-store";
@@ -19,8 +18,6 @@ Notifications.setNotificationHandler({
 });
 
 export async function registerForPushNotifications(): Promise<string | null> {
-  if (!Device.isDevice) return null;
-
   const { status: existingStatus } =
     await Notifications.getPermissionsAsync();
   let finalStatus = existingStatus;
@@ -39,12 +36,16 @@ export async function registerForPushNotifications(): Promise<string | null> {
     });
   }
 
-  const projectId = Constants.expoConfig?.extra?.eas?.projectId;
-  const tokenData = await Notifications.getExpoPushTokenAsync({
-    projectId,
-  });
-
-  return tokenData.data;
+  try {
+    const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+    const tokenData = await Notifications.getExpoPushTokenAsync({
+      projectId,
+    });
+    return tokenData.data;
+  } catch (e) {
+    console.error("[Push] 토큰 발급 실패:", e);
+    return null;
+  }
 }
 
 export function usePushNotifications() {
