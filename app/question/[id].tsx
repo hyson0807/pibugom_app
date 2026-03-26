@@ -256,21 +256,24 @@ export default function QuestionDetailScreen() {
   );
 
   const handleSendAnswer = () => {
-    if (!answerText.trim() || createAnswer.isPending) return;
+    const text = answerText.trim();
+    if (!text || createAnswer.isPending) return;
     Keyboard.dismiss();
+
+    const savedReplyingTo = replyingTo;
+    setAnswerText("");
+    setReplyingTo(null);
 
     createAnswer.mutate(
       {
         questionId: id,
-        content: answerText.trim(),
-        parentId: replyingTo?.id,
+        content: text,
+        parentId: savedReplyingTo?.id,
       },
       {
-        onSuccess: () => {
-          setAnswerText("");
-          setReplyingTo(null);
-        },
         onError: () => {
+          setAnswerText(text);
+          setReplyingTo(savedReplyingTo);
           showToast("error", "답변 등록에 실패했습니다.");
         },
       }
@@ -583,13 +586,17 @@ export default function QuestionDetailScreen() {
             disabled={!answerText.trim() || createAnswer.isPending}
             hitSlop={8}
           >
-            <Ionicons
-              name="arrow-up-circle"
-              size={28}
-              color={
-                answerText.trim() ? Colors.skinPrimary : Colors.skinInactive
-              }
-            />
+            {createAnswer.isPending ? (
+              <ActivityIndicator size="small" color={Colors.skinPrimary} />
+            ) : (
+              <Ionicons
+                name="arrow-up-circle"
+                size={28}
+                color={
+                  answerText.trim() ? Colors.skinPrimary : Colors.skinInactive
+                }
+              />
+            )}
           </TouchableOpacity>
         </View>
       </View>
