@@ -14,7 +14,8 @@
     "updates": {
       "enabled": true,
       "checkAutomatically": "ON_ERROR_RECOVERY",
-      "fallbackToCacheTimeout": 0
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/8973f069-0242-465b-821e-ba6e21ee22a9"
     },
     "ios": {
       "supportsTablet": true,
@@ -34,6 +35,7 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.hyson.pibugom",
       "permissions": [
+        "android.permission.RECORD_AUDIO",
         "android.permission.RECORD_AUDIO"
       ]
     },
