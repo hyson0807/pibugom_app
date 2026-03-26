@@ -7,7 +7,7 @@ import {
   RefreshControl,
   Image,
 } from "react-native";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -54,6 +54,9 @@ export default function MyQuestionsScreen() {
 
   const [refreshing, setRefreshing] = useState(false);
 
+  const refetchRef = useRef(refetch);
+  refetchRef.current = refetch;
+
   const items = useMemo(
     () => data?.pages.flatMap((p) => p.questions) ?? [],
     [data]
@@ -62,8 +65,8 @@ export default function MyQuestionsScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchProfile();
-      refetch();
-    }, [])
+      refetchRef.current();
+    }, [fetchProfile])
   );
 
   const handleRefresh = useCallback(async () => {
