@@ -3,11 +3,14 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { userApi } from "@/services/userApi";
 
 export function useUpdateProfile() {
+  const queryClient = useQueryClient();
   const setUser = useAuthStore((s) => s.setUser);
   return useMutation({
     mutationFn: (formData: FormData) => userApi.updateProfile(formData),
     onSuccess: (data) => {
       setUser(data);
+      queryClient.invalidateQueries({ queryKey: ["myQuestions"] });
+      queryClient.invalidateQueries({ queryKey: ["myAnswers"] });
     },
   });
 }

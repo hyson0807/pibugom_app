@@ -39,7 +39,7 @@ interface AnswerItemProps {
   item: FlatAnswer;
   currentUserId: string | undefined;
   questionUserId: string;
-  onReply: (id: string, nickname: string) => void;
+  onReply: (parentId: string, nickname: string, mention: boolean) => void;
   onMenuPress: (item: Answer) => void;
 }
 
@@ -109,19 +109,23 @@ const AnswerItem = memo(function AnswerItem({
           {isAuthor ? `${displayNickname}(글쓴이)` : displayNickname}
         </Text>
         <View className="ml-auto flex-row items-center">
-          {!isReply && (
-            <TouchableOpacity
-              onPress={() => onReply(item.id, displayNickname)}
-              hitSlop={8}
-              className="mr-3"
-            >
-              <Ionicons
-                name="chatbubble-outline"
-                size={16}
-                color={Colors.skinTextSecondary}
-              />
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity
+            onPress={() =>
+              onReply(
+                isReply ? item.parentId! : item.id,
+                displayNickname,
+                isReply
+              )
+            }
+            hitSlop={8}
+            className="mr-3"
+          >
+            <Ionicons
+              name="chatbubble-outline"
+              size={16}
+              color={Colors.skinTextSecondary}
+            />
+          </TouchableOpacity>
           {currentUserId && (
             <TouchableOpacity
               onPress={() => onMenuPress(item)}
@@ -171,6 +175,7 @@ export default function QuestionDetailScreen() {
   const [replyingTo, setReplyingTo] = useState<{
     id: string;
     nickname: string;
+    mention: boolean;
   } | null>(null);
   const [answerSheetTarget, setAnswerSheetTarget] = useState<Answer | null>(
     null
@@ -233,8 +238,8 @@ export default function QuestionDetailScreen() {
   }, [id, router]);
 
   const handleReply = useCallback(
-    (answerId: string, nickname: string) => {
-      setReplyingTo({ id: answerId, nickname });
+    (parentId: string, nickname: string, mention: boolean) => {
+      setReplyingTo({ id: parentId, nickname, mention });
     },
     []
   );
@@ -256,11 +261,14 @@ export default function QuestionDetailScreen() {
   );
 
   const handleSendAnswer = () => {
-    const text = answerText.trim();
-    if (!text || createAnswer.isPending) return;
+    const raw = answerText.trim();
+    if (!raw || createAnswer.isPending) return;
     Keyboard.dismiss();
 
     const savedReplyingTo = replyingTo;
+    const text = savedReplyingTo?.mention
+      ? `@${savedReplyingTo.nickname} ${raw}`
+      : raw;
     setAnswerText("");
     setReplyingTo(null);
 
@@ -272,7 +280,7 @@ export default function QuestionDetailScreen() {
       },
       {
         onError: () => {
-          setAnswerText(text);
+          setAnswerText(raw);
           setReplyingTo(savedReplyingTo);
           showToast("error", "답변 등록에 실패했습니다.");
         },
@@ -393,6 +401,10 @@ export default function QuestionDetailScreen() {
       </View>
     );
   }
+
+  const replyDisplayName = replyingTo?.mention
+    ? `@${replyingTo.nickname}`
+    : replyingTo?.nickname;
 
   return (
     <KeyboardAvoidingView
@@ -553,7 +565,7 @@ export default function QuestionDetailScreen() {
         {replyingTo && (
           <View className="flex-row items-center mb-2 px-1">
             <Text className="text-xs text-skin-text-secondary">
-              {replyingTo.nickname}님에게 답글 작성 중
+              {replyDisplayName}님에게 답글 작성 중
             </Text>
             <TouchableOpacity
               onPress={() => setReplyingTo(null)}
@@ -572,7 +584,7 @@ export default function QuestionDetailScreen() {
             className="flex-1 py-3 text-skin-text text-sm"
             placeholder={
               replyingTo
-                ? `${replyingTo.nickname}님에게 답글...`
+                ? `${replyDisplayName}님에게 답글...`
                 : "답변을 입력하세요..."
             }
             placeholderTextColor={Colors.skinPlaceholder}

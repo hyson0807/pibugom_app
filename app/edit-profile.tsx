@@ -49,8 +49,12 @@ export default function EditProfileScreen() {
 
   const handleSave = useCallback(() => {
     const trimmed = nickname.trim();
+    if (!trimmed) {
+      showToast("error", "닉네임을 입력해주세요.");
+      return;
+    }
     const formData = new FormData();
-    if (trimmed) formData.append("nickname", trimmed);
+    formData.append("nickname", trimmed);
     if (gender) formData.append("gender", gender);
     formData.append("skincareProducts", JSON.stringify(products));
     if (newImage) {

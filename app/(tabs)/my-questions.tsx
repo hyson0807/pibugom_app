@@ -119,12 +119,11 @@ export default function MyQuestionsScreen() {
             (cat) => user.skincareProducts?.[cat.key]?.length
           ) && (
             <View className="bg-skin-surface border border-skin-border rounded-2xl px-4 py-3.5 mb-4">
-              {SKINCARE_CATEGORIES.map((cat, catIndex) => {
-                const items = user.skincareProducts?.[cat.key];
-                if (!items?.length) return null;
-                const isLast = SKINCARE_CATEGORIES.slice(catIndex + 1).every(
-                  (c) => !(user.skincareProducts?.[c.key]?.length)
-                );
+              {SKINCARE_CATEGORIES.filter(
+                (cat) => user.skincareProducts?.[cat.key]?.length
+              ).map((cat, idx, arr) => {
+                const items = user.skincareProducts?.[cat.key]!;
+                const isLast = idx === arr.length - 1;
                 return (
                   <View
                     key={cat.key}
