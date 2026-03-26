@@ -55,7 +55,7 @@ export const questionApi = {
     const formData = new FormData();
     formData.append("title", data.title);
     formData.append("content", data.content);
-    formData.append("isAnonymous", String(data.isAnonymous ?? true));
+    formData.append("isAnonymous", String(data.isAnonymous));
     data.categories.forEach((cat) => formData.append("categories", cat));
     if (data.images) {
       data.images.forEach((img) => {
