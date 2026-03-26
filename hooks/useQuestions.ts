@@ -156,11 +156,13 @@ export function useCreateAnswer() {
       questionId,
       content,
       parentId,
+      isAnonymous,
     }: {
       questionId: string;
       content: string;
       parentId?: string;
-    }) => questionApi.createAnswer(questionId, content, parentId),
+      isAnonymous?: boolean;
+    }) => questionApi.createAnswer(questionId, content, parentId, isAnonymous),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["question", variables.questionId],

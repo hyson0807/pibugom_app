@@ -31,6 +31,7 @@ import AnswerInput from "@/components/AnswerInput";
 import QuestionContent from "@/components/QuestionContent";
 import { showToast } from "@/utils/toast";
 import { Colors } from "@/constants/colors";
+import { useAnonymousPreference } from "@/hooks/useAnonymousPreference";
 
 export default function QuestionDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -58,6 +59,8 @@ export default function QuestionDetailScreen() {
   } | null>(null);
 
   const { data: question, isLoading, isError } = useQuestion(id);
+  const isAnonymous = useAnonymousPreference((s) => s.isAnonymous);
+  const toggleAnonymous = useAnonymousPreference((s) => s.toggle);
   const createAnswer = useCreateAnswer();
   const deleteQuestion = useDeleteQuestion();
   const deleteAnswer = useDeleteAnswer();
@@ -143,6 +146,7 @@ export default function QuestionDetailScreen() {
         questionId: id,
         content: text,
         parentId: savedReplyingTo?.id,
+        isAnonymous,
       },
       {
         onError: () => {
@@ -365,6 +369,8 @@ export default function QuestionDetailScreen() {
         isPending={createAnswer.isPending}
         replyingTo={replyingTo}
         onCancelReply={handleCancelReply}
+        isAnonymous={isAnonymous}
+        onToggleAnonymous={toggleAnonymous}
       />
 
       <QuestionActionSheet

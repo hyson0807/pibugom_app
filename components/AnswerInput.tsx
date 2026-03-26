@@ -10,6 +10,8 @@ interface AnswerInputProps {
   isPending: boolean;
   replyingTo: { nickname: string; mention: boolean } | null;
   onCancelReply: () => void;
+  isAnonymous: boolean;
+  onToggleAnonymous: () => void;
 }
 
 export default memo(function AnswerInput({
@@ -19,6 +21,8 @@ export default memo(function AnswerInput({
   isPending,
   replyingTo,
   onCancelReply,
+  isAnonymous,
+  onToggleAnonymous,
 }: AnswerInputProps) {
   const replyDisplayName = replyingTo?.mention
     ? `@${replyingTo.nickname}`
@@ -45,6 +49,27 @@ export default memo(function AnswerInput({
         </View>
       )}
       <View className="flex-row items-center rounded-full border border-skin-border bg-skin-surface px-4">
+        <TouchableOpacity
+          onPress={onToggleAnonymous}
+          hitSlop={4}
+          className="flex-row items-center mr-2"
+        >
+          <Ionicons
+            name={isAnonymous ? "checkbox" : "square-outline"}
+            size={18}
+            color={isAnonymous ? Colors.skinPrimary : Colors.skinTextSecondary}
+          />
+          <Text
+            style={{
+              marginLeft: 3,
+              fontSize: 12,
+              fontWeight: "600",
+              color: isAnonymous ? Colors.skinPrimary : Colors.skinTextSecondary,
+            }}
+          >
+            익명
+          </Text>
+        </TouchableOpacity>
         <TextInput
           className="flex-1 py-3 text-skin-text text-sm"
           placeholder={

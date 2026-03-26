@@ -23,6 +23,7 @@ import {
   type CompressedImage,
 } from "@/utils/imageUpload";
 import { useKeyboardHeight } from "@/hooks/useKeyboardHeight";
+import { useAnonymousPreference } from "@/hooks/useAnonymousPreference";
 
 const MAX_IMAGES = 5;
 
@@ -36,7 +37,8 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [images, setImages] = useState<CompressedImage[]>([]);
-  const [isAnonymous, setIsAnonymous] = useState(true);
+  const isAnonymous = useAnonymousPreference((s) => s.isAnonymous);
+  const toggleAnonymous = useAnonymousPreference((s) => s.toggle);
   const router = useRouter();
   const createQuestion = useCreateQuestion();
   const keyboardHeight = useKeyboardHeight();
@@ -48,7 +50,6 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
     setTitle("");
     setContent("");
     setImages([]);
-    setIsAnonymous(true);
   };
 
   const handleClose = () => {
@@ -345,7 +346,7 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
               </Text>
             )}
             <TouchableOpacity
-              onPress={() => setIsAnonymous((prev) => !prev)}
+              onPress={toggleAnonymous}
               hitSlop={8}
               style={{
                 marginLeft: "auto",

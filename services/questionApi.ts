@@ -30,6 +30,7 @@ export interface Answer {
   questionId: string;
   userId: string;
   content: string;
+  isAnonymous: boolean;
   parentId: string | null;
   deletedAt: string | null;
   createdAt: string;
@@ -122,9 +123,9 @@ export const questionApi = {
 
   delete: (id: string) => api.delete(`/questions/${id}`).then((r) => r.data),
 
-  createAnswer: (questionId: string, content: string, parentId?: string) =>
+  createAnswer: (questionId: string, content: string, parentId?: string, isAnonymous?: boolean) =>
     api
-      .post<Answer>(`/questions/${questionId}/answers`, { content, parentId })
+      .post<Answer>(`/questions/${questionId}/answers`, { content, parentId, isAnonymous })
       .then((r) => r.data),
 
   deleteAnswer: (questionId: string, answerId: string) =>
