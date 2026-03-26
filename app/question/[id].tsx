@@ -404,19 +404,25 @@ export default function QuestionDetailScreen() {
               <Text style={{ fontSize: 13, fontWeight: "600", color: "#FFFFFF" }}>
                 질문 상세
               </Text>
-              <View
-                style={{
-                  backgroundColor: "rgba(232,116,97,0.1)",
-                  borderRadius: 999,
-                  paddingHorizontal: 10,
-                  paddingVertical: 3,
-                  marginTop: 4,
-                }}
-              >
-                <Text style={{ fontSize: 11, fontWeight: "500", color: Colors.skinPrimary }}>
-                  {question.category}
-                </Text>
-              </View>
+              {question.categories?.length > 0 && (
+                <View style={{ flexDirection: "row", gap: 4, marginTop: 4, flexWrap: "wrap", justifyContent: "center" }}>
+                  {question.categories.map((cat) => (
+                    <View
+                      key={cat}
+                      style={{
+                        backgroundColor: "rgba(232,116,97,0.1)",
+                        borderRadius: 999,
+                        paddingHorizontal: 10,
+                        paddingVertical: 3,
+                      }}
+                    >
+                      <Text style={{ fontSize: 11, fontWeight: "500", color: Colors.skinPrimary }}>
+                        {cat}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              )}
             </View>
           ),
           headerRight: isMyQuestion

@@ -31,7 +31,7 @@ export default function EditQuestionScreen() {
   const { data: question, isLoading: isLoadingQuestion } = useQuestion(id);
   const updateQuestion = useUpdateQuestion();
 
-  const [category, setCategory] = useState("");
+  const [categories, setCategories] = useState<string[]>([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [existingImages, setExistingImages] = useState<QuestionImage[]>([]);
@@ -42,7 +42,7 @@ export default function EditQuestionScreen() {
 
   useEffect(() => {
     if (question && !hasHydrated.current) {
-      setCategory(question.category);
+      setCategories(question.categories ?? []);
       setTitle(question.title);
       setContent(question.content);
       setExistingImages(question.images ?? []);
@@ -99,8 +99,8 @@ export default function EditQuestionScreen() {
   };
 
   const handleSubmit = () => {
-    if (!category || !title.trim() || !content.trim()) {
-      showToast("info", "카테고리, 제목, 내용을 모두 입력해주세요.");
+    if (!title.trim() || !content.trim()) {
+      showToast("info", "제목과 내용을 모두 입력해주세요.");
       return;
     }
 
@@ -110,7 +110,7 @@ export default function EditQuestionScreen() {
         data: {
           title: title.trim(),
           content: content.trim(),
-          category,
+          categories,
           newImages: newImages.length > 0 ? newImages : undefined,
           deleteImageIds: deleteImageIds.length > 0 ? deleteImageIds : undefined,
         },
@@ -135,7 +135,7 @@ export default function EditQuestionScreen() {
     );
   }
 
-  const isFormValid = category && title.trim() && content.trim();
+  const isFormValid = title.trim() && content.trim();
 
   return (
     <View className="flex-1 bg-skin-bg">
@@ -161,7 +161,7 @@ export default function EditQuestionScreen() {
         >
           <View style={{ flexDirection: "row", gap: 8 }}>
             {SKIN_CATEGORIES.map((cat) => {
-              const isSelected = category === cat;
+              const isSelected = categories.includes(cat);
               return (
                 <TouchableOpacity
                   key={cat}
@@ -175,7 +175,13 @@ export default function EditQuestionScreen() {
                     borderWidth: isSelected ? 0 : 1,
                     borderColor: Colors.skinBorder,
                   }}
-                  onPress={() => setCategory(cat)}
+                  onPress={() =>
+                    setCategories((prev) =>
+                      isSelected
+                        ? prev.filter((c) => c !== cat)
+                        : [...prev, cat]
+                    )
+                  }
                 >
                   <Text
                     style={{

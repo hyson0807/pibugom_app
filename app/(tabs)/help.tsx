@@ -43,16 +43,6 @@ export default function HelpScreen() {
         onPress={() => router.push(`/question/${item.id}`)}
         activeOpacity={0.7}
       >
-        <View className="flex-row items-center mb-2">
-          <View className="bg-skin-primary/10 rounded-full px-3 py-1">
-            <Text className="text-xs font-medium text-skin-primary">
-              {item.category}
-            </Text>
-          </View>
-          <Text className="text-xs text-skin-text-secondary ml-auto">
-            {timeAgo(item.createdAt)}
-          </Text>
-        </View>
         <Text className="text-base font-semibold text-skin-text mb-1" numberOfLines={1}>
           {item.title}
         </Text>
@@ -62,6 +52,9 @@ export default function HelpScreen() {
         <View className="flex-row items-center">
           <Text className="text-xs text-skin-text-secondary">
             {item.user?.nickname ?? "익명"}
+          </Text>
+          <Text className="text-xs text-skin-text-secondary ml-2">
+            {timeAgo(item.createdAt)}
           </Text>
           <Text className="text-xs text-skin-primary ml-auto font-medium">
             답변 {item._count?.answers ?? 0}

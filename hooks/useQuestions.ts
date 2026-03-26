@@ -100,7 +100,7 @@ export function useCreateQuestion() {
     mutationFn: (data: {
       title: string;
       content: string;
-      category: string;
+      categories: string[];
       images?: CompressedImage[];
     }) => questionApi.create(data),
     onSuccess: () => {
@@ -122,7 +122,7 @@ export function useUpdateQuestion() {
       data: {
         title?: string;
         content?: string;
-        category?: string;
+        categories?: string[];
         newImages?: CompressedImage[];
         deleteImageIds?: string[];
       };

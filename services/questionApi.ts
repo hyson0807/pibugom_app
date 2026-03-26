@@ -13,7 +13,7 @@ export interface Question {
   userId: string;
   title: string;
   content: string;
-  category: string;
+  categories: string[];
   createdAt: string;
   updatedAt: string;
   user?: { id: string; nickname: string | null; profileImage: string | null };
@@ -47,13 +47,13 @@ export const questionApi = {
   create: (data: {
     title: string;
     content: string;
-    category: string;
+    categories: string[];
     images?: CompressedImage[];
   }) => {
     const formData = new FormData();
     formData.append("title", data.title);
     formData.append("content", data.content);
-    formData.append("category", data.category);
+    data.categories.forEach((cat) => formData.append("categories", cat));
     if (data.images) {
       data.images.forEach((img) => {
         formData.append(
@@ -93,7 +93,7 @@ export const questionApi = {
     data: {
       title?: string;
       content?: string;
-      category?: string;
+      categories?: string[];
       newImages?: CompressedImage[];
       deleteImageIds?: string[];
     }
@@ -101,7 +101,7 @@ export const questionApi = {
     const formData = new FormData();
     if (data.title) formData.append("title", data.title);
     if (data.content) formData.append("content", data.content);
-    if (data.category) formData.append("category", data.category);
+    if (data.categories !== undefined) data.categories.forEach((cat) => formData.append("categories", cat));
     if (data.deleteImageIds) {
       data.deleteImageIds.forEach((imgId) => {
         formData.append("deleteImageIds", imgId);

@@ -31,7 +31,7 @@ interface Props {
 }
 
 export default function QuestionBottomSheet({ visible, onClose }: Props) {
-  const [category, setCategory] = useState("");
+  const [categories, setCategories] = useState<string[]>([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [images, setImages] = useState<CompressedImage[]>([]);
@@ -65,10 +65,10 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
     };
   }, [keyboardHeight]);
 
-  const isFormValid = category && title.trim() && content.trim();
+  const isFormValid = title.trim() && content.trim();
 
   const resetForm = () => {
-    setCategory("");
+    setCategories([]);
     setTitle("");
     setContent("");
     setImages([]);
@@ -95,7 +95,7 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
 
   const handleSubmit = () => {
     if (!isFormValid) {
-      showToast("info", "카테고리, 제목, 내용을 모두 입력해주세요.");
+      showToast("info", "제목과 내용을 모두 입력해주세요.");
       return;
     }
 
@@ -103,7 +103,7 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
       {
         title: title.trim(),
         content: content.trim(),
-        category,
+        categories,
         images: images.length > 0 ? images : undefined,
       },
       {
@@ -184,7 +184,7 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 8, marginBottom: 24 }}>
               <View style={{ flexDirection: "row", gap: 8 }}>
                 {SKIN_CATEGORIES.map((cat) => {
-                  const isSelected = category === cat;
+                  const isSelected = categories.includes(cat);
                   return (
                     <TouchableOpacity
                       key={cat}
@@ -196,7 +196,13 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
                         borderWidth: 1,
                         borderColor: isSelected ? Colors.skinPrimary : Colors.skinBorder,
                       }}
-                      onPress={() => setCategory(cat)}
+                      onPress={() =>
+                        setCategories((prev) =>
+                          isSelected
+                            ? prev.filter((c) => c !== cat)
+                            : [...prev, cat]
+                        )
+                      }
                     >
                       <Text
                         style={{
