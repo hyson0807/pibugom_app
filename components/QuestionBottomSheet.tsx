@@ -37,6 +37,7 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [images, setImages] = useState<CompressedImage[]>([]);
+  const [isAnonymous, setIsAnonymous] = useState(true);
   const router = useRouter();
   const createQuestion = useCreateQuestion();
   const keyboardHeight = useRef(new Animated.Value(0)).current;
@@ -75,6 +76,7 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
     setTitle("");
     setContent("");
     setImages([]);
+    setIsAnonymous(true);
   };
 
   const handleClose = () => {
@@ -108,6 +110,7 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
         content: content.trim(),
         categories,
         images: images.length > 0 ? images : undefined,
+        isAnonymous,
       },
       {
         onSuccess: (data: Question) => {
@@ -369,6 +372,32 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
                 {images.length}/{MAX_IMAGES}
               </Text>
             )}
+            <TouchableOpacity
+              onPress={() => setIsAnonymous((prev) => !prev)}
+              hitSlop={8}
+              style={{
+                marginLeft: "auto",
+                flexDirection: "row",
+                alignItems: "center",
+                padding: 4,
+              }}
+            >
+              <Ionicons
+                name={isAnonymous ? "checkbox" : "square-outline"}
+                size={20}
+                color={isAnonymous ? Colors.skinPrimary : Colors.skinTextSecondary}
+              />
+              <Text
+                style={{
+                  marginLeft: 4,
+                  fontSize: 13,
+                  fontWeight: "500",
+                  color: isAnonymous ? Colors.skinPrimary : Colors.skinTextSecondary,
+                }}
+              >
+                익명
+              </Text>
+            </TouchableOpacity>
           </Animated.View>
         </Pressable>
       </Pressable>

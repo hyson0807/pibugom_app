@@ -86,20 +86,25 @@ export default function MyQuestionsScreen() {
             onPress={() => router.push("/edit-profile")}
             activeOpacity={0.7}
           >
-            {user?.profileImage ? (
-              <Image
-                source={{ uri: user.profileImage }}
-                className="w-20 h-20 rounded-full"
-              />
-            ) : (
-              <View className="w-20 h-20 rounded-full bg-skin-surface items-center justify-center border border-skin-border">
-                <Ionicons
-                  name="person"
-                  size={36}
-                  color={Colors.skinTextSecondary}
+            <View>
+              {user?.profileImage ? (
+                <Image
+                  source={{ uri: user.profileImage }}
+                  className="w-20 h-20 rounded-full"
                 />
+              ) : (
+                <View className="w-20 h-20 rounded-full bg-skin-surface items-center justify-center border border-skin-border">
+                  <Ionicons
+                    name="person"
+                    size={36}
+                    color={Colors.skinTextSecondary}
+                  />
+                </View>
+              )}
+              <View className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-skin-primary items-center justify-center">
+                <Ionicons name="pencil" size={12} color="#fff" />
               </View>
-            )}
+            </View>
           </TouchableOpacity>
 
           <View>

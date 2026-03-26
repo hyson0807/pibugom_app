@@ -102,6 +102,7 @@ export function useCreateQuestion() {
       content: string;
       categories: string[];
       images?: CompressedImage[];
+      isAnonymous?: boolean;
     }) => questionApi.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["questions"] });

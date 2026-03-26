@@ -14,6 +14,7 @@ export interface Question {
   title: string;
   content: string;
   categories: string[];
+  isAnonymous?: boolean;
   createdAt: string;
   updatedAt: string;
   user?: { id: string; nickname: string | null; profileImage: string | null };
@@ -49,10 +50,12 @@ export const questionApi = {
     content: string;
     categories: string[];
     images?: CompressedImage[];
+    isAnonymous?: boolean;
   }) => {
     const formData = new FormData();
     formData.append("title", data.title);
     formData.append("content", data.content);
+    formData.append("isAnonymous", String(data.isAnonymous ?? true));
     data.categories.forEach((cat) => formData.append("categories", cat));
     if (data.images) {
       data.images.forEach((img) => {
@@ -99,8 +102,8 @@ export const questionApi = {
     }
   ) => {
     const formData = new FormData();
-    if (data.title) formData.append("title", data.title);
-    if (data.content) formData.append("content", data.content);
+    if (data.title !== undefined) formData.append("title", data.title);
+    if (data.content !== undefined) formData.append("content", data.content);
     if (data.categories !== undefined) data.categories.forEach((cat) => formData.append("categories", cat));
     if (data.deleteImageIds) {
       data.deleteImageIds.forEach((imgId) => {
