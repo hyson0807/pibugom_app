@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import * as SecureStore from "expo-secure-store";
+import { getApiBaseUrl } from "@/services/network";
 
 export interface User {
   id: string;
@@ -123,8 +124,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     // Use plain axios to avoid response interceptor loop
     try {
       const { default: axios } = await import("axios");
-      const baseURL =
-        process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
+      const baseURL = getApiBaseUrl();
       await axios.post(`${baseURL}/auth/logout`, null, {
         headers: { Authorization: `Bearer ${token}` },
         timeout: 5_000,
