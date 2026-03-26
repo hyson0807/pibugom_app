@@ -1,5 +1,5 @@
 import { api } from "./api";
-import type { CompressedImage } from "@/utils/imageUpload";
+import { appendImageToFormData, type CompressedImage } from "@/utils/imageUpload";
 
 export interface QuestionImage {
   id: string;
@@ -59,10 +59,7 @@ export const questionApi = {
     data.categories.forEach((cat) => formData.append("categories", cat));
     if (data.images) {
       data.images.forEach((img) => {
-        formData.append(
-          "images",
-          { uri: img.uri, type: img.type, name: img.name } as unknown as Blob
-        );
+        appendImageToFormData(formData, "images", img);
       });
     }
     return api
@@ -112,10 +109,7 @@ export const questionApi = {
     }
     if (data.newImages) {
       data.newImages.forEach((img) => {
-        formData.append(
-          "images",
-          { uri: img.uri, type: img.type, name: img.name } as unknown as Blob
-        );
+        appendImageToFormData(formData, "images", img);
       });
     }
     return api

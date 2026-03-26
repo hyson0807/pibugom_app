@@ -7,6 +7,23 @@ export interface CompressedImage {
   name: string;
 }
 
+/**
+ * React Native의 FormData는 Blob 대신 { uri, type, name } 객체를 받지만,
+ * TypeScript의 FormData 타입 정의는 Blob만 허용합니다.
+ * 이 함수로 타입 안전하게 이미지를 FormData에 추가할 수 있습니다.
+ */
+export function appendImageToFormData(
+  formData: FormData,
+  fieldName: string,
+  image: CompressedImage
+): void {
+  formData.append(fieldName, {
+    uri: image.uri,
+    type: image.type,
+    name: image.name,
+  } as unknown as Blob);
+}
+
 async function ensureMediaLibraryPermission(): Promise<boolean> {
   let permission = await ImagePicker.getMediaLibraryPermissionsAsync();
   if (!permission.granted) {

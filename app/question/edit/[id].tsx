@@ -5,9 +5,7 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
-  Keyboard,
   Animated,
-  Platform,
   Image,
 } from "react-native";
 import { useState, useEffect, useRef } from "react";
@@ -22,6 +20,7 @@ import {
   type CompressedImage,
 } from "@/utils/imageUpload";
 import type { QuestionImage } from "@/services/questionApi";
+import { useKeyboardHeight } from "@/hooks/useKeyboardHeight";
 
 const MAX_IMAGES = 5;
 
@@ -38,7 +37,7 @@ export default function EditQuestionScreen() {
   const [newImages, setNewImages] = useState<CompressedImage[]>([]);
   const [deleteImageIds, setDeleteImageIds] = useState<string[]>([]);
   const hasHydrated = useRef(false);
-  const keyboardHeight = useRef(new Animated.Value(0)).current;
+  const keyboardHeight = useKeyboardHeight();
 
   useEffect(() => {
     if (question && !hasHydrated.current) {
@@ -49,33 +48,6 @@ export default function EditQuestionScreen() {
       hasHydrated.current = true;
     }
   }, [question]);
-
-  useEffect(() => {
-    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
-    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
-    const duration = Platform.OS === "ios" ? 250 : 0;
-
-    const showSub = Keyboard.addListener(showEvent, (e) => {
-      Animated.timing(keyboardHeight, {
-        toValue: e.endCoordinates.height,
-        duration,
-        useNativeDriver: false,
-      }).start();
-    });
-
-    const hideSub = Keyboard.addListener(hideEvent, () => {
-      Animated.timing(keyboardHeight, {
-        toValue: 0,
-        duration,
-        useNativeDriver: false,
-      }).start();
-    });
-
-    return () => {
-      showSub.remove();
-      hideSub.remove();
-    };
-  }, [keyboardHeight]);
 
   const totalImageCount = existingImages.length + newImages.length;
 

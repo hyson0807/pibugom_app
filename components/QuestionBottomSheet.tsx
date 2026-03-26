@@ -5,14 +5,12 @@ import {
   TouchableOpacity,
   ScrollView,
   Modal,
-  Platform,
   Pressable,
   ActivityIndicator,
   Image,
-  Keyboard,
   Animated,
 } from "react-native";
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useCreateQuestion } from "@/hooks/useQuestions";
@@ -24,6 +22,7 @@ import {
   pickQuestionImages,
   type CompressedImage,
 } from "@/utils/imageUpload";
+import { useKeyboardHeight } from "@/hooks/useKeyboardHeight";
 
 const MAX_IMAGES = 5;
 
@@ -40,34 +39,7 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
   const [isAnonymous, setIsAnonymous] = useState(true);
   const router = useRouter();
   const createQuestion = useCreateQuestion();
-  const keyboardHeight = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
-    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
-    const duration = Platform.OS === "ios" ? 250 : 0;
-
-    const showSub = Keyboard.addListener(showEvent, (e) => {
-      Animated.timing(keyboardHeight, {
-        toValue: e.endCoordinates.height,
-        duration,
-        useNativeDriver: false,
-      }).start();
-    });
-
-    const hideSub = Keyboard.addListener(hideEvent, () => {
-      Animated.timing(keyboardHeight, {
-        toValue: 0,
-        duration,
-        useNativeDriver: false,
-      }).start();
-    });
-
-    return () => {
-      showSub.remove();
-      hideSub.remove();
-    };
-  }, [keyboardHeight]);
+  const keyboardHeight = useKeyboardHeight();
 
   const isFormValid = title.trim() && content.trim();
 

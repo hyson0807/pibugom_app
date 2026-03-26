@@ -16,8 +16,8 @@ import { type Question } from "@/services/questionApi";
 import { useMyQuestions, useMyAnswers, useMyBookmarks } from "@/hooks/useQuestions";
 import { useUnreadCount } from "@/hooks/useNotifications";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { timeAgo } from "@/utils/dateUtils";
 import { Colors } from "@/constants/colors";
+import QuestionCard from "@/components/QuestionCard";
 import { GENDER_LABEL } from "@/constants/genders";
 import { SKINCARE_CATEGORIES } from "@/constants/skincareCategories";
 
@@ -191,32 +191,10 @@ export default function MyQuestionsScreen() {
   );
 
   const renderQuestion = useCallback(({ item }: { item: Question }) => (
-    <TouchableOpacity
-      className="bg-skin-surface rounded-2xl p-4 mb-3 border border-skin-border"
+    <QuestionCard
+      item={item}
       onPress={() => router.push(`/question/${item.id}`)}
-      activeOpacity={0.7}
-    >
-      <Text
-        className="text-base font-semibold text-skin-text mb-1"
-        numberOfLines={1}
-      >
-        {item.title}
-      </Text>
-      <Text className="text-sm text-skin-text-secondary" numberOfLines={2}>
-        {item.content}
-      </Text>
-      <View className="flex-row items-center mt-2">
-        <Text className="text-xs text-skin-text-secondary">
-          {item.user?.nickname ?? "익명"}
-        </Text>
-        <Text className="text-xs text-skin-text-secondary ml-2">
-          {timeAgo(item.createdAt)}
-        </Text>
-        <Text className="text-xs text-skin-primary ml-auto font-medium">
-          답변 {item._count?.answers ?? 0}
-        </Text>
-      </View>
-    </TouchableOpacity>
+    />
   ), [router]);
 
   const emptyComponent = useMemo(() => {

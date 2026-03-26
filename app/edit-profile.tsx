@@ -19,7 +19,7 @@ import { showToast } from "@/utils/toast";
 import { Colors } from "@/constants/colors";
 import { GENDERS } from "@/constants/genders";
 import { SKINCARE_CATEGORIES } from "@/constants/skincareCategories";
-import { pickAndCompressImage } from "@/utils/imageUpload";
+import { pickAndCompressImage, appendImageToFormData } from "@/utils/imageUpload";
 import { useSkincareProducts } from "@/hooks/useSkincareProducts";
 import SkincareProductSection from "@/components/SkincareProductSection";
 
@@ -58,11 +58,7 @@ export default function EditProfileScreen() {
     if (gender) formData.append("gender", gender);
     formData.append("skincareProducts", JSON.stringify(products));
     if (newImage) {
-      formData.append("profileImage", {
-        uri: newImage.uri,
-        type: newImage.type,
-        name: newImage.name,
-      } as unknown as Blob);
+      appendImageToFormData(formData, "profileImage", newImage);
     }
 
     updateProfile.mutate(formData, {
