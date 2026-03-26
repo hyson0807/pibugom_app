@@ -17,13 +17,8 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { useUpdateProfile } from "@/hooks/useUser";
 import { showToast } from "@/utils/toast";
 import { Colors } from "@/constants/colors";
+import { GENDERS } from "@/constants/genders";
 import { pickAndCompressImage } from "@/utils/imageUpload";
-
-const GENDERS = [
-  { value: "MALE", label: "남성", icon: "male" as const },
-  { value: "FEMALE", label: "여성", icon: "female" as const },
-  { value: "OTHER", label: "기타", icon: "person" as const },
-];
 
 export default function EditProfileScreen() {
   const router = useRouter();

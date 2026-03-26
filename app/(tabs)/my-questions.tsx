@@ -18,14 +18,9 @@ import { useUnreadCount } from "@/hooks/useNotifications";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { timeAgo } from "@/utils/dateUtils";
 import { Colors } from "@/constants/colors";
+import { GENDER_LABEL } from "@/constants/genders";
 
 type Tab = "questions" | "answers" | "bookmarks";
-
-const GENDER_LABEL: Record<string, string> = {
-  MALE: "남성",
-  FEMALE: "여성",
-  OTHER: "기타",
-};
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "questions", label: "내 질문" },
@@ -76,12 +71,7 @@ export default function MyQuestionsScreen() {
     setRefreshing(false);
   }, [fetchProfile, refetch]);
 
-  const subtitle = useMemo(() => {
-    if (user?.gender) {
-      return GENDER_LABEL[user.gender] ?? user.gender;
-    }
-    return "";
-  }, [user?.gender]);
+  const subtitle = user?.gender ? GENDER_LABEL[user.gender] ?? user.gender : "";
 
   const renderProfileHeader = useCallback(
     () => (
