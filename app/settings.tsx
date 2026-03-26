@@ -19,7 +19,7 @@ import { showToast } from "@/utils/toast";
 import { Colors } from "@/constants/colors";
 import { useNotificationSettings } from "@/hooks/useNotificationSettings";
 
-const APP_VERSION = Constants.expoConfig?.version ?? "1.0.0";
+const APP_VERSION = Constants.expoConfig?.version ?? "1.0.2";
 
 const INFO_LINKS = [
   { label: "커뮤니티 가이드라인", url: "https://hyson.kr/pibugom/community-guidelines" },
