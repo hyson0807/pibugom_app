@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo } from "react";
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -10,13 +10,14 @@ interface Props {
   onRemove: (index: number) => void;
 }
 
-export default function SkincareProductSection({
+export default memo(function SkincareProductSection({
   label,
   products,
   onAdd,
   onRemove,
 }: Props) {
   const [input, setInput] = useState("");
+  const hasInput = input.trim().length > 0;
 
   const handleAdd = () => {
     const trimmed = input.trim();
@@ -33,7 +34,7 @@ export default function SkincareProductSection({
         <View className="flex-row flex-wrap gap-2 mb-2">
           {products.map((name, i) => (
             <View
-              key={i}
+              key={`${name}-${i}`}
               className="flex-row items-center bg-skin-surface border border-skin-border rounded-full px-3 py-1.5"
             >
               <Text className="text-sm text-skin-text mr-1">{name}</Text>
@@ -64,15 +65,15 @@ export default function SkincareProductSection({
         />
         <TouchableOpacity
           className={`rounded-xl px-4 py-2.5 ${
-            input.trim() ? "bg-skin-primary" : "bg-skin-surface border border-skin-border"
+            hasInput ? "bg-skin-primary" : "bg-skin-surface border border-skin-border"
           }`}
           onPress={handleAdd}
-          disabled={!input.trim()}
+          disabled={!hasInput}
           activeOpacity={0.7}
         >
           <Text
             className={`text-sm font-medium ${
-              input.trim() ? "text-white" : "text-skin-text-secondary"
+              hasInput ? "text-white" : "text-skin-text-secondary"
             }`}
           >
             추가
@@ -81,4 +82,4 @@ export default function SkincareProductSection({
       </View>
     </View>
   );
-}
+});

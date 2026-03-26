@@ -20,6 +20,7 @@ import { Colors } from "@/constants/colors";
 import { GENDERS } from "@/constants/genders";
 import { SKINCARE_CATEGORIES } from "@/constants/skincareCategories";
 import { pickAndCompressImage } from "@/utils/imageUpload";
+import { useSkincareProducts } from "@/hooks/useSkincareProducts";
 import SkincareProductSection from "@/components/SkincareProductSection";
 
 export default function EditProfileScreen() {
@@ -35,11 +36,7 @@ export default function EditProfileScreen() {
     type: string;
     name: string;
   } | null>(null);
-  const [products, setProducts] = useState<Record<string, string[]>>({
-    cleanser: user?.skincareProducts?.cleanser ?? [],
-    moisturizer: user?.skincareProducts?.moisturizer ?? [],
-    sunscreen: user?.skincareProducts?.sunscreen ?? [],
-  });
+  const { products, addProduct, removeProduct } = useSkincareProducts(user?.skincareProducts);
 
   const displayImage = newImage?.uri ?? user?.profileImage;
 
@@ -73,20 +70,6 @@ export default function EditProfileScreen() {
       },
     });
   }, [nickname, gender, newImage, products, updateProfile, router]);
-
-  const addProduct = (category: string, name: string) => {
-    setProducts((prev) => ({
-      ...prev,
-      [category]: [...(prev[category] || []), name],
-    }));
-  };
-
-  const removeProduct = (category: string, index: number) => {
-    setProducts((prev) => ({
-      ...prev,
-      [category]: prev[category].filter((_, i) => i !== index),
-    }));
-  };
 
   useLayoutEffect(() => {
     navigation.setOptions({

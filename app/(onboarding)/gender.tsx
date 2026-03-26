@@ -1,24 +1,24 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import { useState } from "react";
+import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuthStore } from "@/stores/useAuthStore";
 import { api } from "@/services/api";
 import { Colors } from "@/constants/colors";
 import { GENDERS } from "@/constants/genders";
 import { showToast } from "@/utils/toast";
 
 export default function GenderScreen() {
+  const router = useRouter();
   const [gender, setGender] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const setOnboarded = useAuthStore((s) => s.setOnboarded);
 
-  const handleSubmit = async () => {
+  const handleNext = async () => {
     if (!gender) return;
     setIsSubmitting(true);
 
     try {
       await api.patch("/users/onboarding", { gender });
-      setOnboarded();
+      router.push("/(onboarding)/skincare");
     } catch {
       showToast("error", "저장 중 문제가 발생했습니다.");
     } finally {
@@ -73,7 +73,7 @@ export default function GenderScreen() {
         className={`rounded-full py-4 items-center mb-12 ${
           gender ? "bg-skin-primary" : "bg-skin-surface"
         }`}
-        onPress={handleSubmit}
+        onPress={handleNext}
         activeOpacity={0.8}
         disabled={!gender || isSubmitting}
       >
@@ -82,7 +82,7 @@ export default function GenderScreen() {
             gender ? "text-white" : "text-white/30"
           }`}
         >
-          {isSubmitting ? "저장 중..." : "시작하기"}
+          {isSubmitting ? "저장 중..." : "다음"}
         </Text>
       </TouchableOpacity>
     </View>

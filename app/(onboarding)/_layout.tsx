@@ -10,6 +10,7 @@ export default function OnboardingLayout() {
       }}
     >
       <Stack.Screen name="gender" />
+      <Stack.Screen name="skincare" />
     </Stack>
   );
 }
