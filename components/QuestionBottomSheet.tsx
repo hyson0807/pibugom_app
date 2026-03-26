@@ -14,8 +14,10 @@ import {
 } from "react-native";
 import { useState, useEffect, useRef } from "react";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useCreateQuestion } from "@/hooks/useQuestions";
 import { showToast } from "@/utils/toast";
+import type { Question } from "@/services/questionApi";
 import { SKIN_CATEGORIES } from "@/constants/skinCategories";
 import { Colors } from "@/constants/colors";
 import {
@@ -35,6 +37,7 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [images, setImages] = useState<CompressedImage[]>([]);
+  const router = useRouter();
   const createQuestion = useCreateQuestion();
   const keyboardHeight = useRef(new Animated.Value(0)).current;
 
@@ -107,9 +110,12 @@ export default function QuestionBottomSheet({ visible, onClose }: Props) {
         images: images.length > 0 ? images : undefined,
       },
       {
-        onSuccess: () => {
+        onSuccess: (data: Question) => {
           showToast("success", "질문이 등록되었습니다!");
           handleClose();
+          if (data?.id) {
+            router.push(`/question/${data.id}`);
+          }
         },
         onError: () => {
           showToast("error", "질문 등록에 실패했습니다.");
