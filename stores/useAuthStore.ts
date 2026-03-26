@@ -8,10 +8,7 @@ export interface User {
   nickname: string | null;
   profileImage: string | null;
   isOnboarded: boolean;
-  birthMonth: number | null;
-  birthYear: number | null;
   gender: string | null;
-  skinConcerns: string[];
   createdAt: string;
 }
 

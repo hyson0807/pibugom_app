@@ -19,8 +19,6 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { timeAgo } from "@/utils/dateUtils";
 import { Colors } from "@/constants/colors";
 
-const currentYear = new Date().getFullYear();
-
 type Tab = "questions" | "answers" | "bookmarks";
 
 const GENDER_LABEL: Record<string, string> = {
@@ -79,15 +77,11 @@ export default function MyQuestionsScreen() {
   }, [fetchProfile, refetch]);
 
   const subtitle = useMemo(() => {
-    const parts: string[] = [];
-    if (user?.birthYear) {
-      parts.push(`${currentYear - user.birthYear}세`);
-    }
     if (user?.gender) {
-      parts.push(GENDER_LABEL[user.gender] ?? user.gender);
+      return GENDER_LABEL[user.gender] ?? user.gender;
     }
-    return parts.join(" · ");
-  }, [user?.birthYear, user?.gender]);
+    return "";
+  }, [user?.gender]);
 
   const renderProfileHeader = useCallback(
     () => (
@@ -121,21 +115,6 @@ export default function MyQuestionsScreen() {
             ) : null}
           </View>
         </View>
-
-        {user?.skinConcerns && user.skinConcerns.length > 0 && (
-          <View className="flex-row flex-wrap gap-2 mb-4">
-            {user.skinConcerns.map((concern) => (
-              <View
-                key={concern}
-                className="bg-skin-primary/10 rounded-full px-3 py-1.5"
-              >
-                <Text className="text-xs font-medium text-skin-primary">
-                  {concern}
-                </Text>
-              </View>
-            ))}
-          </View>
-        )}
 
         <TouchableOpacity
           className="border border-skin-border rounded-xl py-2.5 items-center mb-4"

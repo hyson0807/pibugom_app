@@ -7,12 +7,9 @@ export default function OnboardingLayout() {
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: Colors.skinBg },
-        animation: "slide_from_right",
       }}
     >
-      <Stack.Screen name="age" />
       <Stack.Screen name="gender" />
-      <Stack.Screen name="skin-concerns" />
     </Stack>
   );
 }

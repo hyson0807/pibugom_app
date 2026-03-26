@@ -55,7 +55,7 @@ function AppContent() {
       }
     } else if (!isOnboarded) {
       if (rootSegment !== "(onboarding)") {
-        router.replace("/(onboarding)/age");
+        router.replace("/(onboarding)/gender");
       }
     } else {
       if (!AUTHENTICATED_SEGMENTS.has(rootSegment)) {

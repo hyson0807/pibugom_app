@@ -29,7 +29,7 @@ export default function WelcomeScreen() {
     isOnboarded: boolean;
   }) => {
     await login(data.accessToken, data.refreshToken, data.isOnboarded);
-    router.replace(data.isOnboarded ? "/(tabs)/help" : "/(onboarding)/age");
+    router.replace(data.isOnboarded ? "/(tabs)/help" : "/(onboarding)/gender");
   };
 
   useEffect(() => {
