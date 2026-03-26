@@ -18,7 +18,9 @@ import { useUpdateProfile } from "@/hooks/useUser";
 import { showToast } from "@/utils/toast";
 import { Colors } from "@/constants/colors";
 import { GENDERS } from "@/constants/genders";
+import { SKINCARE_CATEGORIES } from "@/constants/skincareCategories";
 import { pickAndCompressImage } from "@/utils/imageUpload";
+import SkincareProductSection from "@/components/SkincareProductSection";
 
 export default function EditProfileScreen() {
   const router = useRouter();
@@ -33,6 +35,11 @@ export default function EditProfileScreen() {
     type: string;
     name: string;
   } | null>(null);
+  const [products, setProducts] = useState<Record<string, string[]>>({
+    cleanser: user?.skincareProducts?.cleanser ?? [],
+    moisturizer: user?.skincareProducts?.moisturizer ?? [],
+    sunscreen: user?.skincareProducts?.sunscreen ?? [],
+  });
 
   const displayImage = newImage?.uri ?? user?.profileImage;
 
@@ -48,6 +55,7 @@ export default function EditProfileScreen() {
     const formData = new FormData();
     if (trimmed) formData.append("nickname", trimmed);
     if (gender) formData.append("gender", gender);
+    formData.append("skincareProducts", JSON.stringify(products));
     if (newImage) {
       formData.append("profileImage", {
         uri: newImage.uri,
@@ -64,7 +72,21 @@ export default function EditProfileScreen() {
         showToast("error", "프로필 수정에 실패했어요. 다시 시도해주세요.");
       },
     });
-  }, [nickname, gender, newImage, updateProfile, router]);
+  }, [nickname, gender, newImage, products, updateProfile, router]);
+
+  const addProduct = (category: string, name: string) => {
+    setProducts((prev) => ({
+      ...prev,
+      [category]: [...(prev[category] || []), name],
+    }));
+  };
+
+  const removeProduct = (category: string, index: number) => {
+    setProducts((prev) => ({
+      ...prev,
+      [category]: prev[category].filter((_, i) => i !== index),
+    }));
+  };
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -180,6 +202,22 @@ export default function EditProfileScreen() {
                 );
               })}
             </View>
+          </View>
+
+          {/* Skincare products */}
+          <View className="mb-6">
+            <Text className="text-sm font-medium text-skin-text mb-3">
+              사용 중인 제품
+            </Text>
+            {SKINCARE_CATEGORIES.map((cat) => (
+              <SkincareProductSection
+                key={cat.key}
+                label={cat.label}
+                products={products[cat.key] ?? []}
+                onAdd={(name) => addProduct(cat.key, name)}
+                onRemove={(index) => removeProduct(cat.key, index)}
+              />
+            ))}
           </View>
 
         </ScrollView>

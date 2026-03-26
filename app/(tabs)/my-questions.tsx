@@ -19,6 +19,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { timeAgo } from "@/utils/dateUtils";
 import { Colors } from "@/constants/colors";
 import { GENDER_LABEL } from "@/constants/genders";
+import { SKINCARE_CATEGORIES } from "@/constants/skincareCategories";
 
 type Tab = "questions" | "answers" | "bookmarks";
 
@@ -77,7 +78,11 @@ export default function MyQuestionsScreen() {
     () => (
       <View className="mb-4">
         <View className="flex-row items-center mb-4 pt-4">
-          <View className="mr-5 mb-2">
+          <TouchableOpacity
+            className="mr-5"
+            onPress={() => router.push("/edit-profile")}
+            activeOpacity={0.7}
+          >
             {user?.profileImage ? (
               <Image
                 source={{ uri: user.profileImage }}
@@ -92,7 +97,7 @@ export default function MyQuestionsScreen() {
                 />
               </View>
             )}
-          </View>
+          </TouchableOpacity>
 
           <View>
             <Text className="text-2xl font-bold text-skin-text">
@@ -106,15 +111,47 @@ export default function MyQuestionsScreen() {
           </View>
         </View>
 
-        <TouchableOpacity
-          className="border border-skin-border rounded-xl py-2.5 items-center mb-4"
-          onPress={() => router.push("/edit-profile")}
-          activeOpacity={0.7}
-        >
-          <Text className="text-sm font-medium text-skin-text">
-            프로필 수정
-          </Text>
-        </TouchableOpacity>
+        {user?.skincareProducts &&
+          SKINCARE_CATEGORIES.some(
+            (cat) => user.skincareProducts?.[cat.key]?.length
+          ) && (
+            <View className="bg-skin-surface border border-skin-border rounded-2xl px-4 py-3.5 mb-4">
+              {SKINCARE_CATEGORIES.map((cat, catIndex) => {
+                const items = user.skincareProducts?.[cat.key];
+                if (!items?.length) return null;
+                const isLast = SKINCARE_CATEGORIES.slice(catIndex + 1).every(
+                  (c) => !(user.skincareProducts?.[c.key]?.length)
+                );
+                return (
+                  <View
+                    key={cat.key}
+                    className={`flex-row items-start ${isLast ? "" : "mb-3"}`}
+                  >
+                    <View className="flex-row items-center mr-3 pt-0.5" style={{ minWidth: 64 }}>
+                      <Ionicons
+                        name={cat.icon}
+                        size={14}
+                        color={Colors.skinPrimary}
+                      />
+                      <Text className="text-xs font-semibold text-skin-text-secondary ml-1.5">
+                        {cat.label}
+                      </Text>
+                    </View>
+                    <View className="flex-1 flex-row flex-wrap gap-1.5">
+                      {items.map((name, i) => (
+                        <View
+                          key={i}
+                          className="bg-skin-bg rounded-full px-3 py-1"
+                        >
+                          <Text className="text-xs text-skin-text">{name}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          )}
 
         <View className="border-t border-skin-border pt-2">
           <View className="flex-row">

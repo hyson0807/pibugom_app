@@ -2,6 +2,12 @@ import { create } from "zustand";
 import * as SecureStore from "expo-secure-store";
 import { getApiBaseUrl } from "@/services/network";
 
+export interface SkincareProducts {
+  cleanser: string[];
+  moisturizer: string[];
+  sunscreen: string[];
+}
+
 export interface User {
   id: string;
   email: string;
@@ -9,6 +15,7 @@ export interface User {
   profileImage: string | null;
   isOnboarded: boolean;
   gender: string | null;
+  skincareProducts: SkincareProducts | null;
   createdAt: string;
 }
 
