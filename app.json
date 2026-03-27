@@ -2,7 +2,7 @@
   "expo": {
     "name": "피부곰",
     "slug": "pibugom",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "pibugom",
