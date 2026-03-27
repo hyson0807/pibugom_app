@@ -1,14 +1,14 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { AppState } from "react-native";
-import * as Notifications from "expo-notifications";
 import * as SecureStore from "expo-secure-store";
 import { registerForPushNotifications } from "@/hooks/usePushNotifications";
 import { notificationApi } from "@/services/notificationApi";
 import { showToast } from "@/utils/toast";
+import { Notifications } from "@/services/notifications";
 
 type OsPermission = "granted" | "denied" | "undetermined";
 
-function toOsPermission(status: Notifications.PermissionStatus): OsPermission {
+function toOsPermission(status: string): OsPermission {
   if (status === "granted") return "granted";
   if (status === "denied") return "denied";
   return "undetermined";
@@ -21,6 +21,7 @@ export function useNotificationSettings() {
   const busyRef = useRef(false);
 
   const refreshPermissionState = useCallback(async () => {
+    if (!Notifications) return;
     try {
       const [{ status }, disabledByUser, pushToken] = await Promise.all([
         Notifications.getPermissionsAsync(),
@@ -40,6 +41,8 @@ export function useNotificationSettings() {
   }, [refreshPermissionState]);
 
   useEffect(() => {
+    if (!Notifications) return;
+
     const subscription = AppState.addEventListener("change", async (state) => {
       if (state !== "active") return;
       const { status } = await Notifications.getPermissionsAsync();
@@ -53,7 +56,7 @@ export function useNotificationSettings() {
   }, [refreshPermissionState]);
 
   const toggleNotifications = useCallback(async (newValue: boolean) => {
-    if (busyRef.current) return;
+    if (busyRef.current || !Notifications) return;
     busyRef.current = true;
     setIsLoading(true);
     try {
@@ -68,7 +71,6 @@ export function useNotificationSettings() {
 
         const token = await registerForPushNotifications();
         if (!token) {
-          // 토큰 발급 실패 원인을 구분: 권한 거부 vs 기타 오류
           const { status: recheckStatus } = await Notifications.getPermissionsAsync();
           setOsPermission(toOsPermission(recheckStatus));
           if (recheckStatus !== "granted") {

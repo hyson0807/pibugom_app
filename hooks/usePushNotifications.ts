@@ -1,23 +1,15 @@
 import { useEffect, useRef } from "react";
 import { Platform } from "react-native";
-import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
 import * as SecureStore from "expo-secure-store";
 import { useRouter } from "expo-router";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { notificationApi } from "@/services/notificationApi";
-
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+import { Notifications } from "@/services/notifications";
 
 export async function registerForPushNotifications(): Promise<string | null> {
+  if (!Notifications) return null;
+
   const { status: existingStatus } =
     await Notifications.getPermissionsAsync();
   let finalStatus = existingStatus;
@@ -55,7 +47,7 @@ export function usePushNotifications() {
   const tokenRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!isAuthenticated || !isOnboarded) return;
+    if (!isAuthenticated || !isOnboarded || !Notifications) return;
 
     let cancelled = false;
 
@@ -87,12 +79,14 @@ export function usePushNotifications() {
   }, [isAuthenticated, isOnboarded]);
 
   useEffect(() => {
+    if (!Notifications) return;
+
     const subscription =
-      Notifications.addNotificationResponseReceivedListener((response) => {
+      Notifications.addNotificationResponseReceivedListener((response: { notification: { request: { content: { data?: { questionId?: string } } } } }) => {
         const questionId =
           response.notification.request.content.data?.questionId;
         if (questionId) {
-          router.push(`/question/${questionId}`);
+          router.push(`/question/${questionId}` as never);
         }
       });
 

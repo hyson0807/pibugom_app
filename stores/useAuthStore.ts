@@ -69,7 +69,18 @@ export const useAuthStore = create<AuthState>((set) => ({
           const { data } = await api.get<User>("/users/me");
           set({ user: data });
         } catch {
-          // profile fetch is best-effort
+          await Promise.all([
+            SecureStore.deleteItemAsync("accessToken"),
+            SecureStore.deleteItemAsync("refreshToken"),
+            SecureStore.deleteItemAsync("isOnboarded"),
+          ]);
+          set({
+            accessToken: null,
+            refreshToken: null,
+            isOnboarded: false,
+            user: null,
+            isAuthenticated: false,
+          });
         }
       }
     } catch {

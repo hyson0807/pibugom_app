@@ -8,7 +8,6 @@ import { toastConfig } from "@/components/ToastConfig";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useAppUpdates } from "@/hooks/useAppUpdates";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
-import { UpdateLoadingScreen } from "@/components/UpdateLoadingScreen";
 import { View, ActivityIndicator } from "react-native";
 import { Colors } from "@/constants/colors";
 import { useFonts, Pacifico_400Regular } from "@expo-google-fonts/pacifico";
@@ -115,14 +114,10 @@ function AppContent() {
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({ Pacifico_400Regular });
-  const { isUpdating } = useAppUpdates();
+  useAppUpdates();
 
-  if (!fontsLoaded || isUpdating) {
-    return (
-      <SafeAreaProvider>
-        <UpdateLoadingScreen />
-      </SafeAreaProvider>
-    );
+  if (!fontsLoaded) {
+    return null;
   }
 
   return (
